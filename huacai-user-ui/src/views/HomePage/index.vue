@@ -16,7 +16,7 @@
                             </el-menu-item>
                             <el-menu-item index="/index/products">
                                 <el-icon><Goods /></el-icon>
-                                <span>扶贫产品</span>
+                                <span>豫农优品</span>
                             </el-menu-item>
                             <el-menu-item index="/index/shoppingCart">
                                 <el-icon><ShoppingCart /></el-icon>

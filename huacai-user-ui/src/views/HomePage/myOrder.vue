@@ -83,6 +83,25 @@
                         <template v-else-if="order.status === '待收货'">
                             <el-button type="primary" size="small" @click="receipt(order)">确认收货</el-button>
                         </template>
+                        <!-- 已完成状态下的评论按钮 -->
+                        <template v-else-if="order.status === '已完成'">
+                            <el-button 
+                                type="success" 
+                                size="small" 
+                                @click="openReviewDialog(order)"
+                                v-if="!order.isReviewed"
+                            >
+                                发表评论
+                            </el-button>
+                            <el-button 
+                                type="info" 
+                                size="small" 
+                                disabled
+                                v-else
+                            >
+                                已评价
+                            </el-button>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -260,12 +279,53 @@
             </span>
         </template>
     </el-dialog>
+
+    <!-- 评论对话框 -->
+    <el-dialog
+        v-model="reviewDialogVisible"
+        title="发表评价"
+        width="500px"
+        :close-on-click-modal="false"
+        center
+    >
+        <div class="review-form">
+            <div class="review-product" v-if="currentReviewOrder && currentReviewOrder.ordersProductsList">
+                <img :src="baseUrl + currentReviewOrder.ordersProductsList[0].image" class="review-product-img" />
+                <div class="review-product-info">
+                    <div class="review-product-name">{{ currentReviewOrder.ordersProductsList[0].productsName }}</div>
+                    <div class="review-product-specs">规格: {{ currentReviewOrder.ordersProductsList[0].specs }}</div>
+                </div>
+            </div>
+            <div class="review-rating">
+                <span class="review-label">商品评分</span>
+                <el-rate v-model="reviewForm.rating" show-score />
+            </div>
+            <div class="review-content">
+                <span class="review-label">评价内容</span>
+                <el-input 
+                    v-model="reviewForm.content" 
+                    type="textarea" 
+                    :rows="4" 
+                    placeholder="请输入您的评价..."
+                    maxlength="500"
+                    show-word-limit
+                />
+            </div>
+        </div>
+        <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="reviewDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="submitReview" :loading="submitting">提交评价</el-button>
+            </span>
+        </template>
+    </el-dialog>
 </template>
 
 <script setup>
 import {ref, computed, getCurrentInstance} from "vue";
 import useUserStore from "@/store/modules/user.js";
 import {listOrders, payment, updateOrders} from "@/api/assisting/orders.js";
+import {addReviews} from "@/api/assisting/reviews.js";
 import {useRouter} from "vue-router";
 import {ElLoading, ElMessage, ElMessageBox} from "element-plus";
 import {Select} from "@element-plus/icons-vue";
@@ -391,6 +451,52 @@ const cancelPayment = () => {
     paymentDialogVisible.value = false
     currentPaymentOrderId.value = ''
     selectedMethod.value = 'wechat'
+}
+
+// 评论相关数据
+const reviewDialogVisible = ref(false)
+const submitting = ref(false)
+const reviewForm = ref({
+    productsId: '',
+    orderId: '',
+    farmersUserId: '',
+    rating: 5,
+    content: ''
+})
+const currentReviewOrder = ref(null)
+
+// 打开评论对话框
+const openReviewDialog = (order) => {
+    currentReviewOrder.value = order
+    // 获取订单中的第一个产品进行评价（简化处理）
+    const product = order.ordersProductsList[0]
+    reviewForm.value = {
+        productsId: product.productsId,
+        orderId: order.ordersId,
+        farmersUserId: order.productsUserId,
+        rating: 5,
+        content: ''
+    }
+    reviewDialogVisible.value = true
+}
+
+// 提交评论
+const submitReview = () => {
+    if (!reviewForm.value.content.trim()) {
+        ElMessage.warning('请输入评价内容')
+        return
+    }
+    
+    submitting.value = true
+    addReviews(reviewForm.value).then(() => {
+        ElMessage.success('评价成功')
+        reviewDialogVisible.value = false
+        // 标记订单已评价
+        currentReviewOrder.value.isReviewed = true
+        submitting.value = false
+    }).catch(() => {
+        submitting.value = false
+    })
 }
 
 //取消订单方法
@@ -846,5 +952,60 @@ onMounted(() => {
 .method-check {
     width: 20px; /* 宽度 */
     color: #3AAE6E; /* 颜色 */
+}
+
+/* 评论表单样式 */
+.review-form {
+    padding: 20px;
+}
+
+.review-product {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.review-product-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.review-product-info {
+    flex: 1;
+}
+
+.review-product-name {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.review-product-specs {
+    font-size: 12px;
+    color: #999;
+}
+
+.review-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.review-label {
+    font-size: 14px;
+    color: #333;
+    margin-right: 15px;
+    min-width: 70px;
+}
+
+.review-content {
+    display: flex;
+    flex-direction: column;
 }
 </style>

@@ -31,7 +31,7 @@
             <div class="section product-recommend">
                 <!-- 区域标题和操作 -->
                 <div class="section-header">
-                    <h2 class="section-title">扶贫产品</h2>
+                    <h2 class="section-title">豫农优品</h2>
                     <p class="section-subtitle">精选优质扶贫产品, 助力乡村振兴</p>
                     <!-- 查看更多链接 -->
                     <el-link type="primary" :underline="false" @click="goToProducts">
@@ -42,44 +42,59 @@
 
                 <!-- 农产品分类导航 -->
                 <div class="category-nav">
-                    <div class="category-item" 
-                         :class="{ active: !selectedCategory }"
-                         @click="selectCategory(null)">
-                        全部
+                    <div class="category-header">
+                        <h3 class="category-title">产品分类</h3>
                     </div>
-                    <div class="category-item"
-                         v-for="category in categoriesList"
-                         :key="category.categoryId"
-                         :class="{ active: selectedCategory === category.categoryId }"
-                         @click="selectCategory(category.categoryId)">
-                        {{ category.categoryName }}
+                    <div class="category-content">
+                        <div class="category-item" 
+                             :class="{ active: !selectedCategory }"
+                             @click="selectCategory(null)">
+                            <el-icon class="category-icon"><Menu /></el-icon>
+                            <span>全部</span>
+                        </div>
+                        <!-- 分类列表 -->
+                        <div class="category-list">
+                            <div v-for="category in categoryTree" :key="category.categoryId" class="category-node">
+                                <div class="category-item" 
+                                     :class="{ active: selectedCategory === category.categoryId }"
+                                     @click="selectCategory(category.categoryId)">
+                                    <el-icon class="category-icon"><Goods /></el-icon>
+                                    <span>{{ category.categoryName }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- 产品列表 -->
                 <div class="product-list">
-                    <el-row :gutter="20">
-                        <el-col :span="6" v-for="item in productsList" :key="item.productsId">
-                            <!-- 产品卡片, 点击后跳转到详情页 -->
-                            <div class="product-card" @click="goToProductDetail(item.productsId)">
-                                <!-- 产品图片 -->
-                                <div class="product-image">
-                                    <img :src="baseUrl + item.image" alt="">
-                                </div>
-                                <!-- 产品信息 -->
-                                <div class="product-info">
-                                    <h3 class="product-name">{{ item.name }}</h3>
-                                    <p class="product-origin">产地: {{ item.origin }}</p>
-                                    <div class="product-meta">
-                                        <!-- 产品价格 -->
-                                        <div class="product-price">
-                                            <span class="current-price">¥{{ item.price }}</span>
+                    <el-loading v-loading="loading" element-loading-text="加载中..." class="loading-container">
+                        <el-row :gutter="20">
+                            <el-col :span="6" v-for="item in productsList" :key="item.productsId">
+                                <!-- 产品卡片, 点击后跳转到详情页 -->
+                                <div class="product-card" @click="goToProductDetail(item.productsId)">
+                                    <!-- 产品图片 -->
+                                    <div class="product-image">
+                                        <img :src="baseUrl + item.image" alt="">
+                                    </div>
+                                    <!-- 产品信息 -->
+                                    <div class="product-info">
+                                        <h3 class="product-name">{{ item.name }}</h3>
+                                        <p class="product-origin">产地: {{ item.origin }}</p>
+                                        <div class="product-meta">
+                                            <!-- 产品价格 -->
+                                            <div class="product-price">
+                                                <span class="current-price">¥{{ item.price }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </el-col>
-                    </el-row>
+                            </el-col>
+                        </el-row>
+                        <div v-if="!loading && productsList.length === 0" class="empty-state">
+                            <el-empty description="暂无产品" />
+                        </div>
+                    </el-loading>
                 </div>
             </div>
         </div>
@@ -89,9 +104,10 @@
 <script setup>
 import {listBanner} from "@/api/assisting/banner.js";
 import {useRouter} from "vue-router";
-import {ArrowRight} from "@element-plus/icons-vue";
+import {ArrowRight, Menu, Goods} from "@element-plus/icons-vue";
 import {selectList} from "@/api/assisting/products.js";
 import {listCategories} from "@/api/assisting/categories.js";
+import {ref, onMounted, computed} from "vue";
 
 //初始化路由
 const router = useRouter()
@@ -118,8 +134,14 @@ const productsList = ref([])
 //分类列表数据
 const categoriesList = ref([])
 
+//分类树数据
+const categoryTree = ref([])
+
 //选中的分类
 const selectedCategory = ref(null)
+
+//加载状态
+const loading = ref(false)
 
 //轮播图查询参数
 const bannerQuery = ref({
@@ -132,6 +154,11 @@ const productsQuery = ref({
     pageNum: 1,
     pageSize: 12,
 })
+
+//构建分类列表（只保留父分类）
+const buildCategoryList = (categories) => {
+    return categories.filter(category => category.parentId === '0' || !category.parentId)
+}
 
 //查询列表数据
 const getList = () => {
@@ -148,14 +175,19 @@ const getList = () => {
 
 //获取产品列表
 const getProductsList = () => {
+    loading.value = true
     const query = {...productsQuery.value}
     if (selectedCategory.value) {
         query.categoryId = selectedCategory.value
     } else {
         delete query.categoryId
     }
+    console.log('产品查询参数:', query)
     selectList(query).then(res => {
         productsList.value = res.rows
+        console.log('产品列表:', res.rows)
+    }).finally(() => {
+        loading.value = false
     })
 }
 
@@ -163,6 +195,8 @@ const getProductsList = () => {
 const getCategoriesList = () => {
     listCategories({}).then(res => {
         categoriesList.value = res.rows
+        categoryTree.value = buildCategoryList(res.rows)
+        console.log('分类列表:', res.rows)
     })
 }
 
@@ -259,35 +293,109 @@ onMounted(() => {
 
 /* 分类导航样式 */
 .category-nav {
-    display: flex;
-    gap: 15px;
     margin-bottom: 30px;
+    padding: 24px;
+    background-color: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    border: 1px solid #f0f0f0;
+}
+
+.category-header {
+    margin-bottom: 20px;
+}
+
+.category-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.category-content {
+    display: flex;
     flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
 }
 
 .category-item {
-    padding: 8px 20px;
-    background-color: #f5f5f5;
-    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background-color: #f8f9fa;
+    border-radius: 28px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 14px;
     color: #666;
+    border: 2px solid transparent;
+    font-weight: 500;
 }
 
 .category-item:hover {
-    background-color: #e0e0e0;
+    background-color: #e8f5e8;
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(58, 174, 110, 0.15);
+    border-color: #3AAE6E;
 }
 
 .category-item.active {
     background-color: #3AAE6E;
     color: white;
+    border-color: #3AAE6E;
+    box-shadow: 0 6px 20px rgba(58, 174, 110, 0.3);
+}
+
+.category-icon {
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.category-item.active .category-icon {
+    transform: scale(1.1);
+}
+
+/* 分类列表样式 */
+.category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.category-node {
+    position: relative;
+}
+
+/* 展开/折叠动画 */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* 产品列表样式 */
 .product-list {
     margin-top: 40px; /* 顶部外边距 */
+}
+
+/* 加载容器样式 */
+.loading-container {
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 空状态样式 */
+.empty-state {
+    margin-top: 60px;
+    text-align: center;
 }
 
 /* 产品卡片样式 */
@@ -298,7 +406,62 @@ onMounted(() => {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* 阴影效果 */
     transition: all 0.3s ease; /* 过渡效果 */
     cursor: pointer; /* 鼠标指针样式 */
-    margin-bottom: 10px; /* 底部外边距 */
+    margin-bottom: 20px; /* 底部外边距 */
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-8px); /* 向上移动 */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12); /* 增强阴影效果 */
+}
+
+/* 产品信息区域样式 */
+.product-info {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 产品名称样式 */
+.product-name {
+    margin: 0 0 10px 0; /* 外边距 */
+    font-size: 18px; /* 字体大小 */
+    font-weight: 600; /* 字体粗细 */
+    color: #333; /* 字体颜色 */
+    white-space: nowrap; /* 不换行 */
+    overflow: hidden; /* 溢出隐藏 */
+    text-overflow: ellipsis; /* 文本溢出显示省略号 */
+}
+
+/* 产品产地样式 */
+.product-origin {
+    margin: 0 0 15px 0; /* 外边距 */
+    font-size: 13px; /* 字体大小 */
+    color: #999; /* 字体颜色 */
+}
+
+/* 产品元信息容器样式 */
+.product-meta {
+    margin-top: auto;
+    display: flex; /* 弹性布局 */
+    justify-content: space-between; /* 两端对齐 */
+    align-items: center; /* 垂直居中 */
+}
+
+/* 产品价格容器样式 */
+.product-price {
+    display: flex;
+    flex-direction: column; /* 垂直方向布局 */
+}
+
+/* 当前价格样式 */
+.current-price {
+    font-size: 20px; /* 字体大小 */
+    font-weight: 700; /* 字体粗细 */
+    color: #f56c6c; /* 价格颜色（红色系） */
 }
 
 /* 产品卡片悬停效果 */

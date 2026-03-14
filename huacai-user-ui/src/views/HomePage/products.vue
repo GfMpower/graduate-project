@@ -19,6 +19,32 @@
                     <el-button icon="Refresh" @click="resetQuery">重置</el-button>
                 </el-col>
             </el-row>
+            
+            <!-- 产品分类导航 -->
+            <div class="category-nav">
+                <div class="category-header">
+                    <h3 class="category-title">产品分类</h3>
+                </div>
+                <div class="category-content">
+                    <div class="category-item" 
+                         :class="{ active: !selectedCategory }"
+                         @click="selectCategory(null)">
+                        <el-icon class="category-icon"><Menu /></el-icon>
+                        <span>全部</span>
+                    </div>
+                    <!-- 分类列表 -->
+                    <div class="category-list">
+                        <div v-for="category in categoryTree" :key="category.categoryId" class="category-node">
+                            <div class="category-item" 
+                                 :class="{ active: selectedCategory === category.categoryId }"
+                                 @click="selectCategory(category.categoryId)">
+                                <el-icon class="category-icon"><Goods /></el-icon>
+                                <span>{{ category.categoryName }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- 产品列表展示区域 -->
@@ -70,8 +96,11 @@
 <script setup>
 import {selectList} from "@/api/assisting/products.js";
 import {addCart} from "@/api/assisting/cart.js";
+import {listCategories} from "@/api/assisting/categories.js";
 import {ElMessage} from "element-plus";
 import {useRouter} from "vue-router";
+import {Menu, Goods} from "@element-plus/icons-vue";
+import {ref, onMounted} from "vue";
 
 //获取基础URL(从环境变量)
 const baseUrl = import.meta.env.VITE_APP_BASE_API
@@ -90,8 +119,18 @@ const queryParams = ref({
     pageSize: 8,
     name: null,
     userId: null,
-    userName: null
+    userName: null,
+    categoryId: null
 })
+
+//分类列表数据
+const categoriesList = ref([])
+
+//分类树数据
+const categoryTree = ref([])
+
+//选中的分类
+const selectedCategory = ref(null)
 
 /** 搜索按钮操作 */
 const handleQuery = () => {
@@ -102,6 +141,8 @@ const handleQuery = () => {
 /** 重置按钮操作 */
 const resetQuery = () => {
     queryParams.value.name = null
+    queryParams.value.categoryId = null
+    selectedCategory.value = null
     handleQuery()
 }
 
@@ -131,6 +172,26 @@ const productsList = ref([])
 //产品总数
 const total = ref(0)
 
+//构建分类列表（只保留父分类）
+const buildCategoryList = (categories) => {
+    return categories.filter(category => category.parentId === '0' || !category.parentId)
+}
+
+//获取分类列表
+const getCategoriesList = () => {
+    listCategories({}).then(res => {
+        categoriesList.value = res.rows
+        categoryTree.value = buildCategoryList(res.rows)
+    })
+}
+
+//选择分类
+const selectCategory = (categoryId) => {
+    selectedCategory.value = categoryId
+    queryParams.value.categoryId = categoryId
+    handleQuery()
+}
+
 //获取产品列表数据
 const getList = () => {
     //显示加载状态
@@ -146,9 +207,10 @@ const getList = () => {
     })
 }
 
-//组件加载时自动获取产品列表
+//组件加载时自动获取产品列表和分类列表
 onMounted(() => {
     getList()
+    getCategoriesList()
 })
 </script>
 
@@ -170,10 +232,85 @@ onMounted(() => {
 .filter-section {
     max-width: 1450px; /* 最大宽度 */
     background-color: #fff; /* 白色背景 */
-    padding: 20px; /* 内边距 */
-    border-radius: 8px; /* 圆角 */
-    margin-bottom: 20px; /* 下边距 */
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); /* 阴影效果 */
+    padding: 24px; /* 内边距 */
+    border-radius: 16px; /* 圆角 */
+    margin-bottom: 30px; /* 下边距 */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06); /* 阴影效果 */
+    border: 1px solid #f0f0f0;
+}
+
+/* 分类导航样式 */
+.category-nav {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.category-header {
+    margin-bottom: 15px;
+}
+
+.category-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.category-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.category-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    background-color: #f8f9fa;
+    border-radius: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #666;
+    border: 2px solid transparent;
+    font-weight: 500;
+}
+
+.category-item:hover {
+    background-color: #e8f5e8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(58, 174, 110, 0.15);
+    border-color: #3AAE6E;
+}
+
+.category-item.active {
+    background-color: #3AAE6E;
+    color: white;
+    border-color: #3AAE6E;
+    box-shadow: 0 4px 16px rgba(58, 174, 110, 0.3);
+}
+
+.category-icon {
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.category-item.active .category-icon {
+    transform: scale(1.1);
+}
+
+/* 分类列表样式 */
+.category-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.category-node {
+    position: relative;
 }
 
 /* 产品列表区域下边距 */

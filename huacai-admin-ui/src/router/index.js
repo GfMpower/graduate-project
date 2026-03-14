@@ -143,6 +143,33 @@ export const dynamicRoutes = [
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
     ]
+  },
+  {
+    path: '/operate',
+    component: Layout,
+    redirect: '/operate/products',
+    name: 'Operate',
+    meta: { title: '农户经营', icon: '农户经营' },
+    children: [
+      {
+        path: 'products',
+        component: () => import('@/views/assisting/products/index'),
+        name: 'Products',
+        meta: { title: '农户产品', icon: '农户产品', permissions: ['assisting:products:list'] }
+      },
+      {
+        path: 'orders',
+        component: () => import('@/views/assisting/orders/index'),
+        name: 'Orders',
+        meta: { title: '订单管理', icon: '订单管理', permissions: ['assisting:orders:list'] }
+      },
+      {
+        path: 'reviews',
+        component: () => import('@/views/assisting/reviews/index'),
+        name: 'Reviews',
+        meta: { title: '评论管理', icon: 'message', permissions: ['assisting:reviews:list'] }
+      }
+    ]
   }
 ]
 

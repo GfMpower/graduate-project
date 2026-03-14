@@ -3,6 +3,13 @@ import useUserStore from '@/store/modules/user'
 function authPermission(permission) {
   const all_permission = "*:*:*"
   const permissions = useUserStore().permissions
+  const roles = useUserStore().roles
+  
+  // 超级管理员角色拥有所有权限
+  if (roles.includes('admin')) {
+    return true
+  }
+  
   if (permission && permission.length > 0) {
     return permissions.some(v => {
       return all_permission === v || v === permission

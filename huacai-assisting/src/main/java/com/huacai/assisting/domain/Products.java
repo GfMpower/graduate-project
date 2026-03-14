@@ -1,6 +1,8 @@
 package com.huacai.assisting.domain;
 
 import java.math.BigDecimal;
+import java.util.List;
+
 import com.huacai.common.annotation.Excel;
 import lombok.*;
 import com.huacai.common.core.domain.BaseEntity;
@@ -78,8 +80,15 @@ public class Products extends BaseEntity
     @Excel(name = "分类ID")
     private String categoryId;
 
+    /** 分类ID列表（用于批量查询） */
+    private List<String> categoryIds;
+
     // 创建人(农户)用户名
     private String userName;
+
+    /** 状态：1-上架，0-下架 */
+    @Excel(name = "状态", readConverterExp = "1=上架,0=下架")
+    private Integer status;
 
 
 }

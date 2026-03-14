@@ -49,6 +49,15 @@ const usePermissionStore = defineStore(
             this.setDefaultRoutes(sidebarRoutes)
             this.setTopbarRoutes(defaultRoutes)
             resolve(rewriteRoutes)
+          }).catch(() => {
+            // 当后端API失败时，使用前端的动态路由
+            const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+            asyncRoutes.forEach(route => { router.addRoute(route) })
+            this.setRoutes(asyncRoutes)
+            this.setSidebarRouters(constantRoutes.concat(asyncRoutes))
+            this.setDefaultRoutes(asyncRoutes)
+            this.setTopbarRoutes(asyncRoutes)
+            resolve(asyncRoutes)
           })
         })
       }

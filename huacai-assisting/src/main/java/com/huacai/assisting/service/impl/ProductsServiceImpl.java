@@ -153,6 +153,8 @@ public class ProductsServiceImpl implements IProductsService {
      */
     @Override
     public List<Products> selectList(Products products) {
+        // 前台查询只返回上架状态的产品
+        products.setStatus(1);
         return productsMapper.selectProductsList(products);
     }
 }

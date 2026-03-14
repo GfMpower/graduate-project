@@ -1,80 +1,69 @@
 package com.huacai.assisting.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.huacai.common.annotation.Excel;
+import lombok.*;
 import com.huacai.common.core.domain.BaseEntity;
-
 import java.util.Date;
 
+/**
+ * 产品评论对象 product_reviews
+ *
+ * @author huacai
+ * @date 2026-03-14
+ */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductReviews extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
+    /** 评论ID */
     private String reviewId;
 
+    /** 产品ID */
     @Excel(name = "产品ID")
     private String productsId;
 
+    /** 用户ID */
     @Excel(name = "用户ID")
     private String userId;
 
-    private String userName;
+    /** 订单ID */
+    @Excel(name = "订单ID")
+    private String orderId;
 
+    /** 农户用户ID（用于数据隔离） */
+    @Excel(name = "农户用户ID")
+    private String farmersUserId;
+
+    /** 评论内容 */
     @Excel(name = "评论内容")
     private String content;
 
+    /** 评分(1-5星) */
     @Excel(name = "评分")
-    private Integer rating;
+    private Long rating;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
-    private Date createTime;
+    /** 商家回复内容 */
+    @Excel(name = "商家回复")
+    private String replyContent;
 
-    public String getReviewId() {
-        return reviewId;
-    }
+    /** 商家回复时间 */
+    @Excel(name = "回复时间")
+    private Date replyTime;
 
-    public void setReviewId(String reviewId) {
-        this.reviewId = reviewId;
-    }
+    /** 状态：0-隐藏，1-显示 */
+    @Excel(name = "状态")
+    private Integer status;
 
-    public String getProductsId() {
-        return productsId;
-    }
-
-    public void setProductsId(String productsId) {
-        this.productsId = productsId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Integer getRating() {
-        return rating;
-    }
-
-    public void setRating(Integer rating) {
-        this.rating = rating;
-    }
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
+    // 扩展字段（非数据库字段）
+    /** 产品名称 */
+    private String productName;
+    
+    /** 用户昵称 */
+    private String userName;
+    
+    /** 农户名称 */
+    private String farmersName;
 }

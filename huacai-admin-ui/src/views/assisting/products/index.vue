@@ -2,6 +2,24 @@
     <div class="app-container">
         <!-- 顶部搜索 -->
         <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
+            <el-form-item label="产品分类" prop="categoryId">
+                <el-select
+                        v-model="queryParams.categoryId"
+                        placeholder="请选择产品分类"
+                        clearable
+                        filterable
+                        allow-create
+                        default-first-option
+                        style="width: 200px"
+                >
+                    <el-option
+                            v-for="category in categoryList"
+                            :key="category.categoryId"
+                            :label="category.categoryName"
+                            :value="category.categoryId"
+                    />
+                </el-select>
+            </el-form-item>
             <el-form-item label="产品名称" prop="name">
                 <el-input
                         v-model="queryParams.name"
@@ -85,6 +103,11 @@
                   border v-loading="loading" :data="productsList" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" align="center"/>
             <el-table-column label="序号" align="center" type="index" :index="indexMethod"/>
+            <el-table-column label="分类" align="center" prop="categoryName">
+                <template #default="scope">
+                    {{ getCategoryName(scope.row.categoryId) }}
+                </template>
+            </el-table-column>
             <el-table-column label="产品名称" align="center" prop="name"/>
             <el-table-column label="简介" align="center" prop="subtitle"/>
             <el-table-column label="价格" align="center" prop="price"/>
@@ -96,6 +119,13 @@
             <el-table-column label="产地" align="center" prop="origin"/>
             <el-table-column label="发货地" align="center" prop="shipFrom"/>
             <el-table-column label="库存" align="center" prop="inventory"/>
+            <el-table-column label="状态" align="center" prop="status">
+                <template #default="scope">
+                    <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
+                        {{ scope.row.status === 1 ? '上架' : '下架' }}
+                    </el-tag>
+                </template>
+            </el-table-column>
             <el-table-column label="创建人用户名" align="center" prop="userName"/>
             <el-table-column label="详情" align="center" class-name="small-padding fixed-width">
                 <template #default="scope">
@@ -114,6 +144,12 @@
                     </el-button>
                     <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
                                v-hasPermi="['assisting:products:remove']">删除
+                    </el-button>
+                    <el-button link type="success" v-if="scope.row.status !== 1" @click="handleShelve(scope.row, 1)">
+                        上架
+                    </el-button>
+                    <el-button link type="info" v-else @click="handleShelve(scope.row, 0)">
+                        下架
                     </el-button>
                 </template>
             </el-table-column>
@@ -161,6 +197,23 @@
         <!-- 添加或修改农户产品对话框 -->
         <vxe-modal height="90vh" :title="title" v-model="open" width="500px" show-maximize showFooter resize>
             <el-form :disabled="isDetail" ref="productsRef" :model="form" :rules="rules" label-width="80px">
+                <el-form-item label="产品分类" prop="categoryId">
+                    <el-select
+                            v-model="form.categoryId"
+                            placeholder="请选择产品分类"
+                            filterable
+                            allow-create
+                            default-first-option
+                            style="width: 100%"
+                    >
+                        <el-option
+                                v-for="category in categoryList"
+                                :key="category.categoryId"
+                                :label="category.categoryName"
+                                :value="category.categoryId"
+                        />
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="产品名称" prop="name">
                     <el-input v-model="form.name" placeholder="请输入产品名称"/>
                 </el-form-item>
@@ -191,6 +244,12 @@
                 <el-form-item label="食用方法" prop="edible">
                     <el-input v-model="form.edible" placeholder="请输入食用方法"/>
                 </el-form-item>
+                <el-form-item label="状态" prop="status">
+                    <el-select v-model="form.status" placeholder="请选择状态">
+                        <el-option label="上架" value="1"/>
+                        <el-option label="下架" value="0"/>
+                    </el-select>
+                </el-form-item>
                 <el-form-item label="详情" prop="detail">
                     <editor v-model="form.detail" :height="300"/>
                 </el-form-item>
@@ -207,6 +266,7 @@
 
 <script setup name="Products">
 import {listProducts, getProducts, delProducts, addProducts, updateProducts, replenish} from "@/api/assisting/products"
+import {listCategories} from "@/api/assisting/categories"
 import {getToken} from "@/utils/auth.js";
 import {ElMessage, ElMessageBox} from "element-plus";
 
@@ -215,6 +275,7 @@ const baseURL = import.meta.env.VITE_APP_BASE_API
 const {proxy} = getCurrentInstance()
 
 const productsList = ref([])
+const categoryList = ref([])
 const open = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
@@ -232,9 +293,13 @@ const data = reactive({
         pageSize: 10,
         name: null,
         userId: null,
-        userName: null
+        userName: null,
+        categoryId: null
     },
     rules: {
+        categoryId: [
+            {required: true, message: "产品分类不能为空", trigger: "blur"}
+        ],
         name: [
             {required: true, message: "产品名称不能为空", trigger: "blur"}
         ],
@@ -358,18 +423,20 @@ const cancel = () => {
 const reset = () => {
     form.value = {
         productsId: null,
+        categoryId: null,
         name: null,
         subtitle: null,
         price: null,
         image: null,
         origin: null,
         shipFrom: null,
-        inventory: null,
+        inventory: 0,
         specs: null,
         expire: null,
         storage: null,
         edible: null,
         detail: null,
+        status: 1,
         userId: null,
         createTime: null
     }
@@ -503,5 +570,33 @@ const submitFileForm = () => {
     proxy.$refs.uploadRef.submit();
 }
 
+// 获取分类列表
+const getCategoryList = () => {
+    listCategories().then(response => {
+        categoryList.value = response
+    })
+}
+
+// 根据分类ID获取分类名称
+const getCategoryName = (categoryId) => {
+    if (!categoryId) return ''
+    const category = categoryList.value.find(item => item.categoryId === categoryId)
+    return category ? category.categoryName : ''
+}
+
+// 上架下架操作
+const handleShelve = (row, status) => {
+    const statusText = status === 1 ? '上架' : '下架'
+    proxy.$modal.confirm(`确定要${statusText}该产品吗？`).then(function () {
+        return updateProducts({...row, status})
+    }).then(() => {
+        getList()
+        proxy.$modal.msgSuccess(`${statusText}成功`)
+    }).catch(() => {
+    })
+}
+
+// 初始化数据
+getCategoryList()
 getList()
 </script>
