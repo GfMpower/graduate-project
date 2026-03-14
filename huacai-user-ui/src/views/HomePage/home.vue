@@ -106,7 +106,7 @@ const bannerQuery = ref({
 //产品列表查询参数
 const productsQuery = ref({
     pageNum: 1,
-    pageSize: 4,
+    pageSize: 12,
 })
 
 //查询列表数据
