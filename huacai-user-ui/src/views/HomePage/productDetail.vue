@@ -120,6 +120,66 @@
                         </table>
                     </div>
                 </el-tab-pane>
+                <!-- 用户评论标签页-->
+                <el-tab-pane label="用户评论" name="reviews">
+                    <div class="product-reviews-content">
+                        <!-- 评论提交表单-->
+                        <div class="review-form" v-if="nickName">
+                            <el-form :model="reviewForm" label-width="80px">
+                                <el-form-item label="评分">
+                                    <el-rate v-model="reviewForm.rating" :max="5" show-text/>
+                                </el-form-item>
+                                <el-form-item label="评论内容">
+                                    <el-input
+                                        type="textarea"
+                                        v-model="reviewForm.content"
+                                        :rows="4"
+                                        placeholder="请输入您的评论..."
+                                        maxlength="500"
+                                        show-word-limit
+                                    />
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="submitReview" :loading="submitting">提交评论</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                        <div v-else class="login-tip">
+                            <el-alert title="请先登录后再发表评论" type="info" show-icon :closable="false"/>
+                        </div>
+
+                        <!-- 评论列表-->
+                        <div class="reviews-list" v-loading="reviewsLoading">
+                            <div v-if="reviewsList.length === 0" class="empty-reviews">
+                                <el-empty description="暂无评论，快来抢沙发吧！"/>
+                            </div>
+                            <div v-else class="review-item" v-for="review in reviewsList" :key="review.reviewId">
+                                <div class="review-header">
+                                    <span class="review-user">{{ review.userName || '匿名用户' }}</span>
+                                    <el-rate v-model="review.rating" disabled show-score/>
+                                    <span class="review-time">{{ formatTime(review.createTime) }}</span>
+                                </div>
+                                <div class="review-content">{{ review.content }}</div>
+                                <div class="review-actions" v-if="review.userId === userId">
+                                    <el-button type="danger" size="small" @click="deleteReview(review.reviewId)">删除</el-button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 分页-->
+                        <div class="pagination-container" v-if="reviewsTotal > 0">
+                            <el-pagination
+                                v-model:current-page="reviewsQuery.pageNum"
+                                v-model:page-size="reviewsQuery.pageSize"
+                                :page-sizes="[5, 10, 20]"
+                                :total="reviewsTotal"
+                                layout="total, sizes, prev, pager, next, jumper"
+                                @size-change="getReviewsList"
+                                @current-change="getReviewsList"
+                            />
+                        </div>
+                    </div>
+                </el-tab-pane>
             </el-tabs>
         </div>
 
@@ -131,7 +191,10 @@ import {useRoute, useRouter} from "vue-router";
 import {ArrowLeft, ShoppingCart} from "@element-plus/icons-vue";
 import {getProducts} from "@/api/assisting/products.js";
 import {addCart} from "@/api/assisting/cart.js";
-import {ElMessage} from "element-plus";
+import {listReviews, addReviews, delReviews} from "@/api/assisting/reviews.js";
+import {ElMessage, ElMessageBox} from "element-plus";
+import {getUser} from "@/api/system/user";
+import useUserStore from "@/store/modules/user.js";
 
 //当前激活的标签页, 默认为 detail(商品详情)
 const activeTab = ref('detail')
@@ -154,6 +217,26 @@ const quantity = ref(1)
 //加载状态
 const loading = ref(false)
 
+//评论相关数据
+const reviewsList = ref([])
+const reviewsLoading = ref(false)
+const reviewsTotal = ref(0)
+const reviewsQuery = ref({
+    pageNum: 1,
+    pageSize: 10,
+    productsId: ''
+})
+const reviewForm = ref({
+    content: '',
+    rating: 5
+})
+const submitting = ref(false)
+
+//用户信息
+const userStore = useUserStore()
+const nickName = ref(null)
+const userId = ref(null)
+
 //加入购物车方法
 const addToCart = () => {
     //打开加载状态
@@ -172,6 +255,85 @@ const addToCart = () => {
     })
 }
 
+//获取评论列表
+const getReviewsList = () => {
+    reviewsLoading.value = true
+    reviewsQuery.value.productsId = route.params.id
+    listReviews(reviewsQuery.value).then(res => {
+        reviewsList.value = res.rows
+        reviewsTotal.value = res.total
+        reviewsLoading.value = false
+    }).catch(() => {
+        reviewsLoading.value = false
+    })
+}
+
+//提交评论
+const submitReview = () => {
+    if (!reviewForm.value.content.trim()) {
+        ElMessage.warning('请输入评论内容')
+        return
+    }
+    if (reviewForm.value.rating < 1) {
+        ElMessage.warning('请选择评分')
+        return
+    }
+
+    submitting.value = true
+    const reviewData = {
+        ...reviewForm.value,
+        productsId: route.params.id,
+        userId: userId.value
+    }
+
+    addReviews(reviewData).then(res => {
+        ElMessage.success('评论提交成功')
+        reviewForm.value.content = ''
+        reviewForm.value.rating = 5
+        getReviewsList()
+        submitting.value = false
+    }).catch(() => {
+        submitting.value = false
+    })
+}
+
+//删除评论
+const deleteReview = (reviewId) => {
+    ElMessageBox.confirm('确定要删除这条评论吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(() => {
+        delReviews(reviewId).then(res => {
+            ElMessage.success('删除成功')
+            getReviewsList()
+        })
+    }).catch(() => {})
+}
+
+//格式化时间
+const formatTime = (time) => {
+    if (!time) return ''
+    const date = new Date(time)
+    return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
+}
+
+//获取用户信息
+const getUserInfo = () => {
+    if (userStore.id) {
+        userId.value = userStore.id
+        getUser(userStore.id).then(res => {
+            nickName.value = res.data.nickName
+        })
+    }
+}
+
 //组件挂载时执行的函数
 onMounted(() => {
     console.log('加载产品ID:' + route.params.id + '的详情')
@@ -180,6 +342,10 @@ onMounted(() => {
         //将查询到的产品详情信息赋值给product
         product.value = res.data
     })
+    // 获取评论列表
+    getReviewsList()
+    // 获取用户信息
+    getUserInfo()
 })
 </script>
 
@@ -428,5 +594,72 @@ onMounted(() => {
         width: 100%;
         height: auto;
     }
+}
+
+/* 评论相关样式 */
+.product-reviews-content {
+    padding: 20px 0;
+}
+
+.review-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
+
+.login-tip {
+    margin-bottom: 30px;
+}
+
+.reviews-list {
+    min-height: 200px;
+}
+
+.empty-reviews {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.review-item {
+    border-bottom: 1px solid #eee;
+    padding: 20px 0;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 15px;
+}
+
+.review-user {
+    font-weight: 600;
+    color: #333;
+}
+
+.review-time {
+    margin-left: auto;
+    color: #999;
+    font-size: 14px;
+}
+
+.review-content {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.review-actions {
+    text-align: right;
+}
+
+.pagination-container {
+    margin-top: 30px;
+    text-align: center;
 }
 </style>

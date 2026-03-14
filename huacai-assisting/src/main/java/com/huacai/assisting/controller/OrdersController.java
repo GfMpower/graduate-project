@@ -193,4 +193,12 @@ public class OrdersController extends BaseController {
         return toAjax(ordersService.sendOutGoods(orders));
     }
 
+    /**
+     * 获取农户销售统计数据
+     */
+    @GetMapping("/salesStatistics")
+    public AjaxResult getSalesStatistics(Long userId, String timeRange) {
+        return success(ordersService.getSalesStatistics(userId, timeRange));
+    }
+
 }

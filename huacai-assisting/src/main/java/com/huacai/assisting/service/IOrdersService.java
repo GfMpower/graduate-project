@@ -73,4 +73,12 @@ public interface IOrdersService
      * @return
      */
     int sendOutGoods(Orders orders);
+
+    /**
+     * 获取农户销售统计数据
+     * @param userId 农户用户ID
+     * @param timeRange 时间范围（day/week/month/year）
+     * @return 销售统计数据
+     */
+    Object getSalesStatistics(Long userId, String timeRange);
 }

@@ -143,4 +143,62 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             ( #{item.opId}, #{item.ordersId}, #{item.productsId}, #{item.productsName}, #{item.image}, #{item.specs}, #{item.origin}, #{item.price}, #{item.quantity})
         </foreach>
     </insert>
+
+    <select id="selectSalesTrend" resultType="java.util.Map">
+        <choose>
+            <when test="timeRange == 'day'">
+                SELECT DATE(create_time) as date, SUM(total_price) as totalAmount, COUNT(*) as orderCount
+                FROM orders
+                WHERE products_user_id = #{userId} AND create_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                GROUP BY DATE(create_time)
+                ORDER BY date
+            </when>
+            <when test="timeRange == 'week'">
+                SELECT DATE_FORMAT(create_time, '%Y-%u') as date, SUM(total_price) as totalAmount, COUNT(*) as orderCount
+                FROM orders
+                WHERE products_user_id = #{userId} AND create_time >= DATE_SUB(CURDATE(), INTERVAL 4 WEEK)
+                GROUP BY DATE_FORMAT(create_time, '%Y-%u')
+                ORDER BY date
+            </when>
+            <when test="timeRange == 'month'">
+                SELECT DATE_FORMAT(create_time, '%Y-%m') as date, SUM(total_price) as totalAmount, COUNT(*) as orderCount
+                FROM orders
+                WHERE products_user_id = #{userId} AND create_time >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+                GROUP BY DATE_FORMAT(create_time, '%Y-%m')
+                ORDER BY date
+            </when>
+            <when test="timeRange == 'year'">
+                SELECT YEAR(create_time) as date, SUM(total_price) as totalAmount, COUNT(*) as orderCount
+                FROM orders
+                WHERE products_user_id = #{userId} AND create_time >= DATE_SUB(CURDATE(), INTERVAL 2 YEAR)
+                GROUP BY YEAR(create_time)
+                ORDER BY date
+            </when>
+            <otherwise>
+                SELECT DATE(create_time) as date, SUM(total_price) as totalAmount, COUNT(*) as orderCount
+                FROM orders
+                WHERE products_user_id = #{userId} AND create_time >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+                GROUP BY DATE(create_time)
+                ORDER BY date
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="selectProductSalesRanking" resultType="java.util.Map">
+        SELECT p.products_id, p.name, SUM(op.quantity) as totalQuantity, SUM(op.price * op.quantity) as totalAmount
+        FROM orders o
+        INNER JOIN orders_products op ON o.orders_id = op.orders_id
+        INNER JOIN products p ON op.products_id = p.products_id
+        WHERE o.products_user_id = #{userId}
+        GROUP BY p.products_id, p.name
+        ORDER BY totalAmount DESC
+        LIMIT 10
+    </select>
+
+    <select id="selectOrderStatusDistribution" resultType="java.util.Map">
+        SELECT status, COUNT(*) as count
+        FROM orders
+        WHERE products_user_id = #{userId}
+        GROUP BY status
+    </select>
 </mapper>

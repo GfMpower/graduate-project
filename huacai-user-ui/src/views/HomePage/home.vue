@@ -39,6 +39,23 @@
                         <el-icon><ArrowRight/></el-icon>
                     </el-link>
                 </div>
+
+                <!-- 农产品分类导航 -->
+                <div class="category-nav">
+                    <div class="category-item" 
+                         :class="{ active: !selectedCategory }"
+                         @click="selectCategory(null)">
+                        全部
+                    </div>
+                    <div class="category-item"
+                         v-for="category in categoriesList"
+                         :key="category.categoryId"
+                         :class="{ active: selectedCategory === category.categoryId }"
+                         @click="selectCategory(category.categoryId)">
+                        {{ category.categoryName }}
+                    </div>
+                </div>
+
                 <!-- 产品列表 -->
                 <div class="product-list">
                     <el-row :gutter="20">
@@ -74,6 +91,7 @@ import {listBanner} from "@/api/assisting/banner.js";
 import {useRouter} from "vue-router";
 import {ArrowRight} from "@element-plus/icons-vue";
 import {selectList} from "@/api/assisting/products.js";
+import {listCategories} from "@/api/assisting/categories.js";
 
 //初始化路由
 const router = useRouter()
@@ -97,6 +115,12 @@ const bannerList = ref([])
 //扶贫产品列表数据
 const productsList = ref([])
 
+//分类列表数据
+const categoriesList = ref([])
+
+//选中的分类
+const selectedCategory = ref(null)
+
 //轮播图查询参数
 const bannerQuery = ref({
     pageNum: 1,
@@ -118,9 +142,34 @@ const getList = () => {
         })
     })
 
-    selectList(productsQuery.value).then(res => {
+    getProductsList()
+    getCategoriesList()
+}
+
+//获取产品列表
+const getProductsList = () => {
+    const query = {...productsQuery.value}
+    if (selectedCategory.value) {
+        query.categoryId = selectedCategory.value
+    } else {
+        delete query.categoryId
+    }
+    selectList(query).then(res => {
         productsList.value = res.rows
     })
+}
+
+//获取分类列表
+const getCategoriesList = () => {
+    listCategories({}).then(res => {
+        categoriesList.value = res.rows
+    })
+}
+
+//选择分类
+const selectCategory = (categoryId) => {
+    selectedCategory.value = categoryId
+    getProductsList()
 }
 
 //组件加载时执行方法
@@ -206,6 +255,34 @@ onMounted(() => {
 /* 产品推荐区域样式 */
 .product-recommend {
     margin-bottom: 70px; /* 底部外边距 */
+}
+
+/* 分类导航样式 */
+.category-nav {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.category-item {
+    padding: 8px 20px;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    color: #666;
+}
+
+.category-item:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.category-item.active {
+    background-color: #3AAE6E;
+    color: white;
 }
 
 /* 产品列表样式 */

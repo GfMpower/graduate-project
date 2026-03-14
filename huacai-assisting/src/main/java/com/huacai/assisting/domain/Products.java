@@ -74,6 +74,10 @@ public class Products extends BaseEntity
     @Excel(name = "用户ID")
     private Long userId;
 
+    /** 分类ID */
+    @Excel(name = "分类ID")
+    private String categoryId;
+
     // 创建人(农户)用户名
     private String userName;
 

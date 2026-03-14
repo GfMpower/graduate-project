@@ -76,7 +76,7 @@
                         <!-- 待付款状态下的操作按钮 -->
                         <template v-if="order.status === '待付款'">
                             <el-button size="small" @click="cancelOrder(order)">取消订单</el-button>
-                            <el-button type="primary" size="small" @click="confirmPayment(order.ordersId)">去支付
+                            <el-button type="primary" size="small" @click="openPaymentDialog(order.ordersId)">去支付
                             </el-button>
                         </template>
                         <!-- 待收货状态下的操作按钮 -->
@@ -195,13 +195,81 @@
         </vxe-modal>
 
     </div>
+
+    <!-- 支付方式选择对话框 -->
+    <el-dialog
+        v-model="paymentDialogVisible"
+        title="选择支付方式"
+        width="500px"
+        :close-on-click-modal="false"
+        center
+    >
+        <div class="payment-methods">
+            <h3 class="payment-title">选择支付方式</h3>
+            <div class="method-list">
+                <!-- 微信支付 -->
+                <div
+                    class="method-item"
+                    :class="{'active': selectedMethod === 'wechat'}"
+                    @click="selectedMethod = 'wechat'"
+                >
+                    <div class="method-icon">
+                        <SvgIcon style="font-size: 40px" icon-class="微信"/>
+                    </div>
+                    <div class="method-name">微信支付</div>
+                    <div class="method-check">
+                        <el-icon v-if="selectedMethod === 'wechat'"><Select/></el-icon>
+                    </div>
+                </div>
+
+                <!-- 支付宝支付 -->
+                <div
+                    class="method-item"
+                    :class="{'active': selectedMethod === 'alipay'}"
+                    @click="selectedMethod = 'alipay'"
+                >
+                    <div class="method-icon">
+                        <SvgIcon style="font-size: 40px" icon-class="支付宝"/>
+                    </div>
+                    <div class="method-name">支付宝支付</div>
+                    <div class="method-check">
+                        <el-icon v-if="selectedMethod === 'alipay'"><Select/></el-icon>
+                    </div>
+                </div>
+
+                <!-- 银行卡支付 -->
+                <div
+                    class="method-item"
+                    :class="{'active': selectedMethod === 'bank'}"
+                    @click="selectedMethod = 'bank'"
+                >
+                    <div class="method-icon">
+                        <SvgIcon style="font-size: 40px" icon-class="银行卡"/>
+                    </div>
+                    <div class="method-name">银行卡支付</div>
+                    <div class="method-check">
+                        <el-icon v-if="selectedMethod === 'bank'"><Select/></el-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template #footer>
+            <span class="dialog-footer">
+                <el-button @click="cancelPayment">取消</el-button>
+                <el-button type="primary" @click="confirmPaymentMethod">确认支付</el-button>
+            </span>
+        </template>
+    </el-dialog>
 </template>
 
 <script setup>
+import {ref, computed, getCurrentInstance} from "vue";
 import useUserStore from "@/store/modules/user.js";
 import {listOrders, payment, updateOrders} from "@/api/assisting/orders.js";
 import {useRouter} from "vue-router";
 import {ElLoading, ElMessage, ElMessageBox} from "element-plus";
+import {Select} from "@element-plus/icons-vue";
+import SvgIcon from "@/components/SvgIcon/index.vue";
 
 const router = useRouter()
 const {proxy} = getCurrentInstance()
@@ -270,10 +338,25 @@ const receipt = (order) => {
         })
 }
 
-//支付订单
-const confirmPayment = (ordersId) => {
+//支付方式
+const selectedMethod = ref('wechat')
+//支付对话框可见性
+const paymentDialogVisible = ref(false)
+//当前要支付的订单ID
+const currentPaymentOrderId = ref('')
+
+//打开支付对话框
+const openPaymentDialog = (ordersId) => {
+    currentPaymentOrderId.value = ordersId
+    paymentDialogVisible.value = true
+}
+
+//确认支付
+const confirmPaymentMethod = () => {
+    paymentDialogVisible.value = false
+    
     ElMessageBox.confirm(
-        `确认支付该订单吗`,
+        `确认使用${selectedMethod.value === 'wechat' ? '微信' : selectedMethod.value === 'alipay' ? '支付宝' : '银行卡'}支付该订单吗`,
         '提示',
         {
             confirmButtonText: '确定',
@@ -289,7 +372,7 @@ const confirmPayment = (ordersId) => {
                 background: 'rgba(0, 0, 0, 0.7)',
             })
             //调用支付api进行支付
-            payment(ordersId).then(res => {
+            payment(currentPaymentOrderId.value).then(res => {
                 //提示支付成功
                 ElMessage({type: 'success', message: '支付成功~',})
                 //刷新列表
@@ -301,6 +384,13 @@ const confirmPayment = (ordersId) => {
         .catch(() => {
             ElMessage({type: 'info', message: '取消支付',})
         })
+}
+
+//取消支付
+const cancelPayment = () => {
+    paymentDialogVisible.value = false
+    currentPaymentOrderId.value = ''
+    selectedMethod.value = 'wechat'
 }
 
 //取消订单方法
@@ -696,5 +786,65 @@ onMounted(() => {
     .detail-amount {
         width: 100%; /* 全宽 */
     }
+}
+
+/* 支付方式样式 */
+.payment-methods {
+    margin-top: 30px; /* 顶部外边距 */
+    padding: 20px; /* 内边距 */
+    background-color: #fff; /* 背景色 */
+    border-radius: 8px; /* 圆角 */
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); /* 阴影效果 */
+}
+
+.payment-title {
+    margin: 0 0 20px 0; /* 外边距 */
+    font-size: 16px; /* 字体大小 */
+    color: #333; /* 字体颜色 */
+}
+
+.method-list {
+    display: flex; /* 弹性布局 */
+    flex-direction: column; /* 垂直方向排列 */
+    gap: 15px; /* 项间距 */
+    align-items: center; /* 水平居中 */
+}
+
+.method-item {
+    display: flex; /* 弹性布局 */
+    align-items: center; /* 垂直居中 */
+    padding: 15px 30px; /* 内边距 */
+    border: 1px solid #eee; /* 边框 */
+    border-radius: 4px; /* 圆角 */
+    cursor: pointer; /* 鼠标指针样式 */
+    transition: all 0.3s; /* 过渡效果 */
+    width: 100%; /* 宽度100% */
+    max-width: 400px; /* 最大宽度 */
+}
+
+.method-item:hover {
+    border-color: #3AAE6E; /* 悬停边框颜色 */
+}
+
+.method-item.active {
+    border-color: #3AAE6E; /* 激活状态边框颜色 */
+    background-color: #f0f9eb; /* 激活状态背景色 */
+}
+
+.method-icon {
+    width: 40px; /* 宽度 */
+    height: 40px; /* 高度 */
+    margin-right: 15px; /* 右边距 */
+}
+
+.method-name {
+    flex: 1; /* 弹性扩展 */
+    font-size: 14px; /* 字体大小 */
+    color: #333; /* 字体颜色 */
+}
+
+.method-check {
+    width: 20px; /* 宽度 */
+    color: #3AAE6E; /* 颜色 */
 }
 </style>

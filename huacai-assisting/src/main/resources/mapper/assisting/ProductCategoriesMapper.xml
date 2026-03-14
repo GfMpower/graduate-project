@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huacai.assisting.mapper.ProductCategoriesMapper">
+
+    <resultMap type="ProductCategories" id="ProductCategoriesResult">
+        <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="level"    column="level"    />
+        <result property="sort"    column="sort"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectProductCategoriesVo">
+        select category_id, category_name, parent_id, level, sort, create_time from product_categories
+    </sql>
+
+    <select id="selectProductCategoriesList" parameterType="ProductCategories" resultMap="ProductCategoriesResult">
+        <include refid="selectProductCategoriesVo"/>
+        <where>
+            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
+            <if test="level != null "> and level = #{level}</if>
+        </where>
+        order by level asc, sort asc
+    </select>
+
+    <select id="selectProductCategoriesByCategoryId" parameterType="String" resultMap="ProductCategoriesResult">
+        <include refid="selectProductCategoriesVo"/>
+        where category_id = #{categoryId}
+    </select>
+
+    <insert id="insertProductCategories" parameterType="ProductCategories">
+        insert into product_categories
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">category_id,</if>
+            <if test="categoryName != null and categoryName != ''">category_name,</if>
+            <if test="parentId != null and parentId != ''">parent_id,</if>
+            <if test="level != null">level,</if>
+            <if test="sort != null">sort,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="categoryName != null and categoryName != ''">#{categoryName},</if>
+            <if test="parentId != null and parentId != ''">#{parentId},</if>
+            <if test="level != null">#{level},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProductCategories" parameterType="ProductCategories">
+        update product_categories
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="categoryName != null and categoryName != ''">category_name = #{categoryName},</if>
+            <if test="parentId != null and parentId != ''">parent_id = #{parentId},</if>
+            <if test="level != null">level = #{level},</if>
+            <if test="sort != null">sort = #{sort},</if>
+        </trim>
+        where category_id = #{categoryId}
+    </update>
+
+    <delete id="deleteProductCategoriesByCategoryId" parameterType="String">
+        delete from product_categories where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deleteProductCategoriesByCategoryIds" parameterType="String">
+        delete from product_categories where category_id in
+        <foreach item="categoryId" collection="array" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+    </delete>
+</mapper>

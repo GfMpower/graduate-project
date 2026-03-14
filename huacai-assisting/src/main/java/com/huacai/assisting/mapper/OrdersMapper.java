@@ -84,4 +84,29 @@ public interface OrdersMapper
      * @return 结果
      */
     public int deleteOrdersProductsByOrdersId(String ordersId);
+
+    /**
+     * 查询销售趋势
+     * 
+     * @param userId 农户用户ID
+     * @param timeRange 时间范围
+     * @return 销售趋势数据
+     */
+    public List<java.util.Map<String, Object>> selectSalesTrend(Long userId, String timeRange);
+
+    /**
+     * 查询产品销售排行
+     * 
+     * @param userId 农户用户ID
+     * @return 产品销售排行数据
+     */
+    public List<java.util.Map<String, Object>> selectProductSalesRanking(Long userId);
+
+    /**
+     * 查询订单状态分布
+     * 
+     * @param userId 农户用户ID
+     * @return 订单状态分布数据
+     */
+    public List<java.util.Map<String, Object>> selectOrderStatusDistribution(Long userId);
 }

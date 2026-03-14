@@ -19,17 +19,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="edible"    column="edible"    />
         <result property="detail"    column="detail"    />
         <result property="userId"    column="user_id"    />
+        <result property="categoryId"    column="category_id"    />
         <result property="createTime"    column="create_time"    />
         <result property="userName"    column="user_name"    />
     </resultMap>
 
     <sql id="selectProductsVo">
-        select products_id, name, subtitle, price, image, origin, shipFrom, inventory, specs, expire, storage, edible, detail, user_id, create_time from products
+        select products_id, name, subtitle, price, image, origin, shipFrom, inventory, specs, expire, storage, edible, detail, user_id, category_id, create_time from products
     </sql>
 
     <select id="selectProductsList" parameterType="Products" resultMap="ProductsResult">
         select p.products_id, p.name, p.subtitle, p.price, p.image, p.origin, p.shipFrom,
-               p.inventory, p.specs, p.expire, p.storage, p.edible, p.detail, p.user_id, p.create_time,
+               p.inventory, p.specs, p.expire, p.storage, p.edible, p.detail, p.user_id, p.category_id, p.create_time,
                u.user_name
         from products p
         left join sys_user u on p.user_id = u.user_id
@@ -37,6 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="name != null  and name != ''"> and p.name like concat('%', #{name}, '%')</if>
             <if test="userId != null "> and p.user_id = #{userId}</if>
             <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="categoryId != null  and categoryId != ''"> and p.category_id = #{categoryId}</if>
         </where>
     </select>
 
@@ -62,6 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="edible != null and edible != ''">edible,</if>
             <if test="detail != null and detail != ''">detail,</if>
             <if test="userId != null">user_id,</if>
+            <if test="categoryId != null and categoryId != ''">category_id,</if>
             <if test="createTime != null">create_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -79,6 +82,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="edible != null and edible != ''">#{edible},</if>
             <if test="detail != null and detail != ''">#{detail},</if>
             <if test="userId != null">#{userId},</if>
+            <if test="categoryId != null and categoryId != ''">#{categoryId},</if>
             <if test="createTime != null">#{createTime},</if>
          </trim>
     </insert>

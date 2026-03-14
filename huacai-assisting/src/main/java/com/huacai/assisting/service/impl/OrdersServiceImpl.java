@@ -207,6 +207,27 @@ public class OrdersServiceImpl implements IOrdersService {
     }
 
     /**
+     * 获取农户销售统计数据
+     * @param userId 农户用户ID
+     * @param timeRange 时间范围
+     * @return 销售统计数据
+     */
+    @Override
+    public Object getSalesStatistics(Long userId, String timeRange) {
+        java.util.Map<String, Object> result = new java.util.HashMap<>();
+
+        List<java.util.Map<String, Object>> salesTrend = ordersMapper.selectSalesTrend(userId, timeRange);
+        List<java.util.Map<String, Object>> productRanking = ordersMapper.selectProductSalesRanking(userId);
+        List<java.util.Map<String, Object>> statusDistribution = ordersMapper.selectOrderStatusDistribution(userId);
+
+        result.put("salesTrend", salesTrend);
+        result.put("productRanking", productRanking);
+        result.put("statusDistribution", statusDistribution);
+
+        return result;
+    }
+
+    /**
      * 新增订单产品信息
      *
      * @param orders 订单对象
