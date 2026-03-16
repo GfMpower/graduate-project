@@ -16,18 +16,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="replyContent"    column="reply_content"    />
         <result property="replyTime"    column="reply_time"    />
         <result property="status"    column="status"    />
+        <result property="productName"    column="product_name"    />
+        <result property="userName"    column="user_name"    />
+        <result property="farmersUserName"    column="farmers_user_name"    />
     </resultMap>
 
     <sql id="selectProductReviewssVo">
-        select review_id, products_id, user_id, content, rating, create_time, order_id, farmers_user_id, reply_content, reply_time, status from product_reviewss
+        select r.review_id, r.products_id, r.user_id, r.content, r.rating, r.create_time, r.order_id, r.farmers_user_id, r.reply_content, r.reply_time, r.status,
+               p.name as product_name,
+               u.nick_name as user_name,
+               fu.nick_name as farmers_user_name
+        from product_reviewss r
+        left join products p on r.products_id = p.products_id
+        left join sys_user u on r.user_id = u.user_id
+        left join sys_user fu on r.farmers_user_id = fu.user_id
     </sql>
 
     <select id="selectProductReviewssList" parameterType="ProductReviewss" resultMap="ProductReviewssResult">
         <include refid="selectProductReviewssVo"/>
         <where>  
-            <if test="productsId != null  and productsId != ''"> and products_id = #{productsId}</if>
-            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
-            <if test="farmersUserId != null  and farmersUserId != ''"> and farmers_user_id = #{farmersUserId}</if>
+            <if test="productsId != null  and productsId != ''"> and r.products_id = #{productsId}</if>
+            <if test="userId != null  and userId != ''"> and r.user_id = #{userId}</if>
+            <if test="farmersUserId != null  and farmersUserId != ''"> and r.farmers_user_id = #{farmersUserId}</if>
         </where>
     </select>
     

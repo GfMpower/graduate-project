@@ -310,14 +310,14 @@
             </div>
             <div class="review-content">
                 <span class="review-label">评价内容</span>
-                <el-input 
-                    v-model="reviewForm.content" 
-                    type="textarea" 
-                    :rows="4" 
+                <QuillEditor
+                    v-model="reviewForm.content"
                     placeholder="请输入您的评价..."
-                    maxlength="500"
-                    show-word-limit
+                    :options="editorOptions"
                 />
+                <div class="word-count" v-if="reviewForm.content.length > 0">
+                    {{ reviewForm.content.replace(/<[^>]+>/g, '').length }} / 500
+                </div>
             </div>
         </div>
         <template #footer>
@@ -366,11 +366,13 @@
 import {ref, computed, getCurrentInstance} from "vue";
 import useUserStore from "@/store/modules/user.js";
 import {listOrders, payment, updateOrders} from "@/api/assisting/orders.js";
-import {addReviews} from "@/api/assisting/reviews.js";
+import {addReviewss} from "@/api/assisting/reviewss.js";
 import {useRouter} from "vue-router";
 import {ElLoading, ElMessage, ElMessageBox} from "element-plus";
 import {Select} from "@element-plus/icons-vue";
 import SvgIcon from "@/components/SvgIcon/index.vue";
+import {QuillEditor} from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 const router = useRouter()
 const {proxy} = getCurrentInstance()
@@ -507,6 +509,30 @@ const reviewForm = ref({
 })
 const currentReviewOrder = ref(null)
 
+// 编辑器选项
+const editorOptions = {
+    modules: {
+        toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            ['blockquote', 'code-block'],
+            [{ 'header': 1 }, { 'header': 2 }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'script': 'sub' }, { 'script': 'super' }],
+            [{ 'indent': '-1' }, { 'indent': '+1' }],
+            [{ 'direction': 'rtl' }],
+            [{ 'size': ['small', false, 'large', 'huge'] }],
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'font': [] }],
+            [{ 'align': [] }],
+            ['clean'],
+            ['image']
+        ]
+    },
+    placeholder: '请输入您的评价...',
+    theme: 'snow'
+}
+
 // 查看评论商品选择对话框相关数据
 const viewReviewsDialogVisible = ref(false)
 const currentViewReviewsOrder = ref(null)
@@ -537,11 +563,12 @@ const submitReview = () => {
         return
     }
     
-    // 更新评论表单中的产品ID
+    // 更新评论表单中的产品ID和用户ID
     reviewForm.value.productsId = selectedProduct.value.productsId
+    reviewForm.value.userId = loginUser.id
     
     submitting.value = true
-    addReviews(reviewForm.value).then(() => {
+    addReviewss(reviewForm.value).then(() => {
         ElMessage.success('评价成功')
         reviewDialogVisible.value = false
         submitting.value = false
@@ -1100,6 +1127,51 @@ onMounted(() => {
 .review-content {
     display: flex;
     flex-direction: column;
+}
+
+/* 富文本编辑器样式 */
+:deep(.ql-container) {
+    min-height: 200px;
+    border: 1px solid #dcdfe6;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+:deep(.ql-toolbar) {
+    border: 1px solid #dcdfe6;
+    border-bottom: 1px solid #e4e7ed;
+    border-radius: 8px 8px 0 0;
+    background-color: #f5f7fa;
+    padding: 8px 12px;
+}
+
+:deep(.ql-toolbar .ql-formats) {
+    margin-right: 12px;
+}
+
+:deep(.ql-toolbar button) {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    margin-right: 4px;
+}
+
+:deep(.ql-toolbar button:hover) {
+    background-color: #ecf5ff;
+}
+
+:deep(.ql-toolbar button.ql-active) {
+    background-color: #ecf5ff;
+    color: #409eff;
+    border-color: #409eff;
+}
+
+.word-count {
+    text-align: right;
+    font-size: 12px;
+    color: #999;
+    margin-top: 5px;
 }
 
 /* 商品选择对话框样式 */

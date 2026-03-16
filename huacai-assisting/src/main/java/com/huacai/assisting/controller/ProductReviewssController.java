@@ -37,7 +37,7 @@ public class ProductReviewssController extends BaseController
     private IProductReviewssService productReviewssService;
 
     /**
-     * 查询产品评论列表
+     * 查询产品评论列表（无需权限控制，普通用户也可访问）
      */
     @GetMapping("/list")
     public TableDataInfo list(ProductReviewss productReviewss)
@@ -50,6 +50,7 @@ public class ProductReviewssController extends BaseController
     /**
      * 导出产品评论列表
      */
+    @PreAuthorize("@ss.hasPermi('assisting:reviewss:export')")
     @Log(title = "产品评论", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, ProductReviewss productReviewss)
@@ -62,6 +63,7 @@ public class ProductReviewssController extends BaseController
     /**
      * 下载模板
      */
+    @PreAuthorize("@ss.hasPermi('assisting:reviewss:import')")
     @PostMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response)
     {
@@ -72,13 +74,17 @@ public class ProductReviewssController extends BaseController
     /**
      * 导入数据
      */
+    @PreAuthorize("@ss.hasPermi('assisting:reviewss:import')")
     @Log(title = "产品评论", businessType = BusinessType.IMPORT)
     @PostMapping("/importData")
     public AjaxResult importData(MultipartFile file) throws Exception
     {
+        if (file == null || file.isEmpty()) {
+            return error("导入文件不能为空");
+        }
         ExcelUtil<ProductReviewss> util = new ExcelUtil<ProductReviewss>(ProductReviewss.class);
         InputStream inputStream = file.getInputStream();
-        List<ProductReviewss> list = util.importExcel(inputStream );
+        List<ProductReviewss> list = util.importExcel(inputStream);
         inputStream.close();
         int count = productReviewssService.batchInsertProductReviewss(list);
         return AjaxResult.success("导入成功" + count + "条信息！");
@@ -87,39 +93,63 @@ public class ProductReviewssController extends BaseController
     /**
      * 获取产品评论详细信息
      */
+    @PreAuthorize("@ss.hasPermi('assisting:reviewss:query')")
     @GetMapping(value = "/{reviewId}")
     public AjaxResult getInfo(@PathVariable("reviewId") String reviewId)
     {
+        if (reviewId == null || reviewId.isEmpty()) {
+            return error("评论ID不能为空");
+        }
         return success(productReviewssService.selectProductReviewssByReviewId(reviewId));
     }
 
     /**
-     * 新增产品评论
+     * 新增产品评论（前台用户调用，不需要权限注解）
      */
     @Log(title = "产品评论", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ProductReviewss productReviewss)
     {
+        if (productReviewss == null) {
+            return error("评论信息不能为空");
+        }
+        if (productReviewss.getProductsId() == null || productReviewss.getProductsId().isEmpty()) {
+            return error("产品ID不能为空");
+        }
+        if (productReviewss.getContent() == null || productReviewss.getContent().isEmpty()) {
+            return error("评论内容不能为空");
+        }
+        if (productReviewss.getRating() == null) {
+            return error("评价等级不能为空");
+        }
         return toAjax(productReviewssService.insertProductReviewss(productReviewss));
     }
 
     /**
-     * 修改产品评论
+     * 修改产品评论（回复/状态修改）
      */
+    @PreAuthorize("@ss.hasPermi('assisting:reviewss:edit')")
     @Log(title = "产品评论", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ProductReviewss productReviewss)
     {
+        if (productReviewss == null || productReviewss.getReviewId() == null) {
+            return error("评论ID不能为空");
+        }
         return toAjax(productReviewssService.updateProductReviewss(productReviewss));
     }
 
     /**
      * 删除产品评论
      */
+    @PreAuthorize("@ss.hasPermi('assisting:reviewss:remove')")
     @Log(title = "产品评论", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{reviewIds}")
+    @DeleteMapping("/{reviewIds}")
     public AjaxResult remove(@PathVariable String[] reviewIds)
     {
+        if (reviewIds == null || reviewIds.length == 0) {
+            return error("请选择要删除的评论");
+        }
         return toAjax(productReviewssService.deleteProductReviewssByReviewIds(reviewIds));
     }
 }

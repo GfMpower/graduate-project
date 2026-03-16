@@ -5,7 +5,7 @@ D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\OrdersController.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\PoliciesController.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\ProductCategoriesController.java
-D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\ProductReviewsController.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\ProductReviewssController.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\ProductsController.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\Addresses.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\Banner.java
@@ -15,7 +15,7 @@ D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\OrdersProducts.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\Policies.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\ProductCategories.java
-D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\ProductReviews.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\ProductReviewss.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\Products.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\AddressesMapper.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\BannerMapper.java
@@ -24,7 +24,7 @@ D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\OrdersMapper.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\PoliciesMapper.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\ProductCategoriesMapper.java
-D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\ProductReviewsMapper.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\ProductReviewssMapper.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\mapper\ProductsMapper.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IAddressesService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IBannerService.java
@@ -37,11 +37,11 @@ D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\OrdersServiceImpl.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\PoliciesServiceImpl.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\ProductCategoriesServiceImpl.java
-D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\ProductReviewsServiceImpl.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\ProductReviewssServiceImpl.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\ProductsServiceImpl.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IOrdersService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IPoliciesService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IProductCategoriesService.java
-D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IProductReviewsService.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IProductReviewssService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IProductsService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\vo\ReplenishVo.java

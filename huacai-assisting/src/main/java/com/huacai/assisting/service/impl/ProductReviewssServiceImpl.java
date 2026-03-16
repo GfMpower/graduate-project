@@ -1,6 +1,7 @@
 package com.huacai.assisting.service.impl;
 
 import java.util.List;
+import java.util.UUID;
 import com.huacai.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,8 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.util.CollectionUtils;
+import com.huacai.assisting.mapper.ProductsMapper;
+import com.huacai.assisting.domain.Products;
 
 /**
  * 产品评论Service业务层处理
@@ -27,6 +30,9 @@ public class ProductReviewssServiceImpl implements IProductReviewssService
     @Autowired
     private SqlSessionFactory sqlSessionFactory;
 
+    @Autowired
+    private ProductsMapper productsMapper;
+
     /**
      * 查询产品评论
      *
@@ -36,6 +42,9 @@ public class ProductReviewssServiceImpl implements IProductReviewssService
     @Override
     public ProductReviewss selectProductReviewssByReviewId(String reviewId)
     {
+        if (reviewId == null || reviewId.isEmpty()) {
+            return null;
+        }
         return productReviewssMapper.selectProductReviewssByReviewId(reviewId);
     }
 
@@ -43,7 +52,7 @@ public class ProductReviewssServiceImpl implements IProductReviewssService
      * 查询产品评论列表
      *
      * @param productReviewss 产品评论
-     * @return 产品评论
+     * @return 产品评论集合
      */
     @Override
     public List<ProductReviewss> selectProductReviewssList(ProductReviewss productReviewss)
@@ -60,7 +69,18 @@ public class ProductReviewssServiceImpl implements IProductReviewssService
     @Override
     public int insertProductReviewss(ProductReviewss productReviewss)
     {
+        // 生成唯一的评论ID
+        productReviewss.setReviewId(UUID.randomUUID().toString().replace("-", ""));
         productReviewss.setCreateTime(DateUtils.getNowDate());
+        
+        // 查询产品信息，设置农户用户ID
+        if (productReviewss.getProductsId() != null && !productReviewss.getProductsId().isEmpty()) {
+            Products product = productsMapper.selectProductsByProductsId(productReviewss.getProductsId());
+            if (product != null) {
+                productReviewss.setFarmersUserId(String.valueOf(product.getUserId()));
+            }
+        }
+        
         return productReviewssMapper.insertProductReviewss(productReviewss);
     }
 
@@ -80,18 +100,18 @@ public class ProductReviewssServiceImpl implements IProductReviewssService
                 for (int i = 0; i < productReviewsss.size(); i++) {
                     int row = productReviewssMapper.insertProductReviewss(productReviewsss.get(i));
                     // 防止内存溢出，每100次提交一次,并清除缓存
-                    boolean bool = (i >0 && i%100 == 0) || i == productReviewsss.size() - 1;
-                    if (bool){
+                    boolean bool = (i > 0 && i % 100 == 0) || i == productReviewsss.size() - 1;
+                    if (bool) {
                         sqlSession.commit();
                         sqlSession.clearCache();
                     }
                     count = i + 1;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 // 没有提交的数据可以回滚
                 sqlSession.rollback();
-            }finally {
+            } finally {
                 sqlSession.close();
                 return count;
             }
@@ -120,6 +140,9 @@ public class ProductReviewssServiceImpl implements IProductReviewssService
     @Override
     public int deleteProductReviewssByReviewIds(String[] reviewIds)
     {
+        if (reviewIds == null || reviewIds.length == 0) {
+            return 0;
+        }
         return productReviewssMapper.deleteProductReviewssByReviewIds(reviewIds);
     }
 
@@ -132,6 +155,9 @@ public class ProductReviewssServiceImpl implements IProductReviewssService
     @Override
     public int deleteProductReviewssByReviewId(String reviewId)
     {
+        if (reviewId == null || reviewId.isEmpty()) {
+            return 0;
+        }
         return productReviewssMapper.deleteProductReviewssByReviewId(reviewId);
     }
 }

@@ -60,5 +60,13 @@ public class ProductReviewss extends BaseEntity
     @Excel(name = "状态：0-隐藏，1-显示")
     private Long status;
 
+    /** 产品名称 */
+    private String productName;
+
+    /** 用户名称 */
+    private String userName;
+
+    /** 农户用户名称 */
+    private String farmersUserName;
 
 }

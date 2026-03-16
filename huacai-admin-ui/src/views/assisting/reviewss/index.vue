@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 顶部搜索 -->
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="100px">
       <el-form-item label="产品ID" prop="productsId">
         <el-input
           v-model="queryParams.productsId"
@@ -18,7 +18,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="农户用户ID" prop="farmersUserId">
+      <el-form-item label="农户用户ID" prop="farmersUserId" style="width: 280px;">
         <el-input
           v-model="queryParams.farmersUserId"
           placeholder="请输入农户用户ID"
@@ -88,20 +88,34 @@
               border v-loading="loading" :data="reviewssList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="序号" align="center" type="index" :index="indexMethod" />
-      <el-table-column label="评论ID" align="center" prop="reviewId" />
-      <el-table-column label="产品ID" align="center" prop="productsId" />
-      <el-table-column label="用户ID" align="center" prop="userId" />
-      <el-table-column label="评论内容" align="center" prop="content" />
+      <el-table-column label="产品名称" align="center" prop="productName" />
+      <el-table-column label="用户名" align="center" prop="userName" />
+      <el-table-column label="评论内容" align="center" prop="content">
+        <template #default="scope">
+          <el-button link type="primary" @click="handleViewContent(scope.row)">查看详情</el-button>
+        </template>
+      </el-table-column>
       <el-table-column label="评价等级" align="center" prop="rating" />
       <el-table-column label="订单ID" align="center" prop="orderId" />
-      <el-table-column label="农户用户ID" align="center" prop="farmersUserId" />
+      <el-table-column label="农户用户名" align="center" prop="farmersUserName" />
       <el-table-column label="商家回复内容" align="center" prop="replyContent" />
       <el-table-column label="商家回复时间" align="center" prop="replyTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.replyTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态：0-隐藏，1-显示" align="center" prop="status" />
+      <el-table-column label="状态" align="center" prop="status" width="150">
+        <template #default="scope">
+          <el-switch
+            v-model="scope.row.status"
+            :active-value="1"
+            :inactive-value="0"
+            active-text="显示"
+            inactive-text="隐藏"
+            @change="handleStatusChange(scope.row)"
+          />
+        </template>
+      </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['assisting:reviewss:edit']">修改</el-button>
@@ -148,7 +162,7 @@
     </vxe-modal>
 
     <!-- 添加或修改产品评论对话框 -->
-    <vxe-modal :title="title" v-model="open" width="500px" show-maximize showFooter resize>
+    <vxe-modal height="90vh" :title="title" v-model="open" width="500px" show-maximize showFooter resize>
       <el-form ref="reviewssRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="产品ID" prop="productsId">
           <el-input v-model="form.productsId" placeholder="请输入产品ID" />
@@ -191,8 +205,13 @@
 </template>
 
 <script setup name="Reviewss">
+import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
 import { listReviewss, getReviewss, delReviewss, addReviewss, updateReviewss } from "@/api/assisting/reviewss"
-import {getToken} from "@/utils/auth.js";
+import { getToken } from "@/utils/auth"
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { parseTime } from '@/utils/huacai'
+import RightToolbar from "@/components/RightToolbar"
+import Pagination from "@/components/Pagination"
 const baseURL = import.meta.env.VITE_APP_BASE_API
 
 const { proxy } = getCurrentInstance()
@@ -374,6 +393,22 @@ const handleDelete = (row) => {
   }).catch(() => {})
 }
 
+/** 查看评论内容详情 */
+const handleViewContent = (row) => {
+  proxy.$modal.alert(row.content || '暂无评论内容', '评论详情')
+}
+
+/** 状态切换 */
+const handleStatusChange = (row) => {
+  const statusText = row.status === 1 ? '显示' : '隐藏'
+  updateReviewss(row).then(() => {
+    proxy.$modal.msgSuccess(`已${statusText}该评论`)
+  }).catch(() => {
+    // 如果更新失败，恢复原状态
+    row.status = row.status === 1 ? 0 : 1
+  })
+}
+
 /** 导出按钮操作 */
 const handleExport = () => {
   proxy.download('assisting/reviewss/export', {
@@ -412,5 +447,8 @@ const submitFileForm = () => {
   proxy.$refs.uploadRef.submit();
 }
 
-getList()
+// 组件挂载完成钩子
+onMounted(() => {
+  getList()
+})
 </script>

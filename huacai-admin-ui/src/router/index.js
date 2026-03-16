@@ -164,10 +164,10 @@ export const dynamicRoutes = [
         meta: { title: '订单管理', icon: '订单管理', permissions: ['assisting:orders:list'] }
       },
       {
-        path: 'reviews',
-        component: () => import('@/views/assisting/reviews/index'),
-        name: 'Reviews',
-        meta: { title: '评论管理', icon: 'message', permissions: ['assisting:reviews:list']}
+        path: 'reviewss',
+        component: () => import('@/views/assisting/reviewss/index'),
+        name: 'Reviewss',
+        meta: { title: '评论管理', icon: 'message', permissions: ['assisting:reviewss:list']}
       }
     ]
   }
