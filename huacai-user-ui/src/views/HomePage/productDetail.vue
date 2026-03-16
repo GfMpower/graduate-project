@@ -125,23 +125,21 @@
                     <div class="product-reviews-content">
                         <!-- 评论提交表单-->
                         <div class="review-form" v-if="nickName">
-                            <el-form :model="reviewForm" label-width="170px">
+                            <el-form :model="reviewForm" label-width="80px">
                                 <el-form-item label="评分">
                                     <el-rate v-model="reviewForm.rating" :max="5" show-text/>
                                 </el-form-item>
-                                <el-form-item label="评论内容" class="review-content-item">
-                                    <QuillEditor
+                                <el-form-item label="评论内容">
+                                    <el-input
+                                        type="textarea"
                                         v-model="reviewForm.content"
+                                        :rows="4"
                                         placeholder="请输入您的评论..."
-                                        :options="editorOptions"
-                                        class="full-width-editor"
+                                        maxlength="500"
+                                        show-word-limit
                                     />
-                                    <div class="word-count" v-if="reviewForm.content.length > 0">
-                                        {{ reviewForm.content.replace(/<[^>]+>/g, '').length }} / 500
-                                    </div>
                                 </el-form-item>
                                 <el-form-item>
-                                    <el-button type="info" @click="showPreview" style="margin-right: 10px">预览评论</el-button>
                                     <el-button type="primary" @click="submitReview" :loading="submitting">提交评论</el-button>
                                 </el-form-item>
                             </el-form>
@@ -161,7 +159,7 @@
                                     <el-rate v-model="review.rating" disabled show-score/>
                                     <span class="review-time">{{ formatTime(review.createTime) }}</span>
                                 </div>
-                                <div class="review-content" v-html="review.content" @click="openImagePreview"></div>
+                                <div class="review-content">{{ review.content }}</div>
                                 <div class="review-actions" v-if="review.userId === userId">
                                     <el-button type="danger" size="small" @click="deleteReview(review.reviewId)">删除</el-button>
                                 </div>
@@ -184,37 +182,8 @@
                 </el-tab-pane>
             </el-tabs>
         </div>
-    </div>
 
-    <!-- 图片预览模态框 -->
-    <div v-if="imagePreviewVisible" class="image-preview-overlay" @click="closeImagePreview">
-        <div class="image-preview-close" @click.stop="closeImagePreview">&times;</div>
-        <img :src="previewImageUrl" class="image-preview" alt="预览图片">
     </div>
-
-    <!-- 评论预览模态框 -->
-    <el-dialog
-        v-model="previewDialogVisible"
-        title="评论预览"
-        width="800px"
-        :close-on-click-modal="false"
-        @close="closePreview"
-    >
-        <div class="preview-content">
-            <div class="preview-header">
-                <div class="preview-rating">
-                    <el-rate v-model="reviewForm.rating" disabled show-score/>
-                </div>
-            </div>
-            <div class="preview-body" v-html="previewContent"></div>
-        </div>
-        <template #footer>
-            <span class="dialog-footer">
-                <el-button @click="closePreview">关闭</el-button>
-                <el-button type="primary" @click="submitReview">提交评论</el-button>
-            </span>
-        </template>
-    </el-dialog>
 </template>
 
 <script setup>
@@ -226,8 +195,6 @@ import {listReviewss, addReviewss, delReviewss} from "@/api/assisting/reviewss.j
 import {ElMessage, ElMessageBox} from "element-plus";
 import {getUser} from "@/api/system/user";
 import useUserStore from "@/store/modules/user.js";
-import {QuillEditor} from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
 //当前激活的标签页, 默认为 detail(商品详情)
 const activeTab = ref('detail')
@@ -269,68 +236,6 @@ const reviewForm = ref({
     rating: 5
 })
 const submitting = ref(false)
-
-// 编辑器选项
-const editorOptions = {
-    modules: {
-        toolbar: [
-            ['bold', 'italic', 'underline', 'strike'],
-            ['blockquote', 'code-block'],
-            [{ 'header': 1 }, { 'header': 2 }],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'script': 'sub' }, { 'script': 'super' }],
-            [{ 'indent': '-1' }, { 'indent': '+1' }],
-            [{ 'direction': 'rtl' }],
-            [{ 'size': ['small', false, 'large', 'huge'] }],
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'font': [] }],
-            [{ 'align': [] }],
-            ['clean'],
-            ['image']
-        ]
-    },
-    placeholder: '请输入您的评论...',
-    theme: 'snow'
-}
-
-// 图片预览相关数据
-const imagePreviewVisible = ref(false)
-const previewImageUrl = ref('')
-
-// 打开图片预览
-const openImagePreview = (event) => {
-    if (event.target.tagName === 'IMG') {
-        previewImageUrl.value = event.target.src
-        imagePreviewVisible.value = true
-    }
-}
-
-// 关闭图片预览
-const closeImagePreview = () => {
-    imagePreviewVisible.value = false
-    previewImageUrl.value = ''
-}
-
-// 预览评论相关数据
-const previewDialogVisible = ref(false)
-const previewContent = ref('')
-
-// 显示评论预览
-const showPreview = () => {
-    if (!reviewForm.value.content.trim()) {
-        ElMessage.warning('请输入评论内容')
-        return
-    }
-    previewContent.value = reviewForm.value.content
-    previewDialogVisible.value = true
-}
-
-// 关闭预览
-const closePreview = () => {
-    previewDialogVisible.value = false
-    previewContent.value = ''
-}
 
 //用户信息
 const userStore = useUserStore()
@@ -378,10 +283,6 @@ const submitReview = () => {
         ElMessage.warning('请选择评分')
         return
     }
-    if (!userId.value) {
-        ElMessage.warning('用户信息未加载，请刷新页面重试')
-        return
-    }
 
     submitting.value = true
     const reviewData = {
@@ -391,18 +292,12 @@ const submitReview = () => {
     }
 
     addReviewss(reviewData).then(res => {
-        if (res.code === 200) {
-            ElMessage.success('评论提交成功')
-            reviewForm.value.content = ''
-            reviewForm.value.rating = 5
-            getReviewsList()
-        } else {
-            ElMessage.error(res.msg || '评论提交失败')
-        }
+        ElMessage.success('评论提交成功')
+        reviewForm.value.content = ''
+        reviewForm.value.rating = 5
+        getReviewsList()
         submitting.value = false
-    }).catch(error => {
-        console.error('评论提交失败:', error)
-        ElMessage.error('网络错误，请稍后重试')
+    }).catch(() => {
         submitting.value = false
     })
 }
@@ -436,22 +331,11 @@ const formatTime = (time) => {
 
 //获取用户信息
 const getUserInfo = () => {
-    if (userStore.token) {
-        // 如果token存在但id不存在，先调用getInfo获取用户信息
-        if (!userStore.id) {
-            userStore.getInfo().then(() => {
-                userId.value = userStore.id
-                getUser(userStore.id).then(res => {
-                    nickName.value = res.data.nickName
-                })
-            })
-        } else {
-            // 如果id已经存在，直接获取用户信息
-            userId.value = userStore.id
-            getUser(userStore.id).then(res => {
-                nickName.value = res.data.nickName
-            })
-        }
+    if (userStore.id) {
+        userId.value = userStore.id
+        getUser(userStore.id).then(res => {
+            nickName.value = res.data.nickName
+        })
     }
 }
 
@@ -723,61 +607,14 @@ onMounted(() => {
 }
 
 .review-form {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 30px;
-    border-radius: 16px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e9ecef;
-}
-
-.review-form :deep(.el-form-item__label) {
-    font-weight: 600;
-    color: #333;
-    font-size: 15px;
-}
-
-.review-form :deep(.el-rate) {
-    height: 32px;
-}
-
-.review-form :deep(.el-rate__item) {
-    margin-right: 8px;
-}
-
-.review-form :deep(.el-rate__icon) {
-    font-size: 28px;
-}
-
-.review-form :deep(.el-button--primary) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    padding: 12px 32px;
-    font-size: 16px;
-    font-weight: 600;
+    background-color: #f9f9f9;
+    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    transition: all 0.3s ease;
-}
-
-.review-form :deep(.el-button--primary:hover) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
-}
-
-.review-form :deep(.el-button--primary:active) {
-    transform: translateY(0);
+    margin-bottom: 30px;
 }
 
 .login-tip {
     margin-bottom: 30px;
-    text-align: center;
-    padding: 20px;
-    background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
-    border-radius: 12px;
-    color: #856404;
-    font-weight: 500;
-    border: 1px solid #ffeeba;
 }
 
 .reviews-list {
@@ -786,22 +623,12 @@ onMounted(() => {
 
 .empty-reviews {
     text-align: center;
-    padding: 60px 0;
-    color: #999;
-    font-size: 16px;
+    padding: 40px 0;
 }
 
 .review-item {
-    border-bottom: 1px solid #e9ecef;
-    padding: 24px 0;
-    transition: all 0.3s ease;
-}
-
-.review-item:hover {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 24px 16px;
-    margin: 0 -16px;
+    border-bottom: 1px solid #eee;
+    padding: 20px 0;
 }
 
 .review-item:last-child {
@@ -811,14 +638,13 @@ onMounted(() => {
 .review-header {
     display: flex;
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     gap: 15px;
 }
 
 .review-user {
     font-weight: 600;
     color: #333;
-    font-size: 16px;
 }
 
 .review-time {
@@ -833,115 +659,6 @@ onMounted(() => {
     margin-bottom: 10px;
 }
 
-/* 富文本内容样式 */
-.review-content p {
-    margin: 10px 0;
-    line-height: 1.6;
-}
-
-.review-content img {
-    max-width: 100%;
-    height: auto;
-    margin: 10px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.review-content img:hover {
-    transform: scale(1.02);
-}
-
-.review-content strong {
-    font-weight: 600;
-}
-
-.review-content em {
-    font-style: italic;
-}
-
-.review-content u {
-    text-decoration: underline;
-}
-
-/* 图片放大预览样式 */
-.image-preview-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.9);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10000;
-}
-
-.image-preview {
-    max-width: 90%;
-    max-height: 90%;
-    object-fit: contain;
-    border-radius: 8px;
-}
-
-.image-preview-close {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    color: white;
-    font-size: 30px;
-    cursor: pointer;
-    z-index: 10001;
-}
-
-/* 评论预览样式 */
-.preview-content {
-    padding: 20px;
-}
-
-.preview-header {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #e9ecef;
-}
-
-.preview-rating {
-    display: flex;
-    align-items: center;
-}
-
-.preview-body {
-    min-height: 200px;
-    line-height: 1.6;
-    color: #333;
-}
-
-.preview-body p {
-    margin: 10px 0;
-}
-
-.preview-body img {
-    max-width: 100%;
-    height: auto;
-    margin: 10px 0;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.preview-body strong {
-    font-weight: 600;
-}
-
-.preview-body em {
-    font-style: italic;
-}
-
-.preview-body u {
-    text-decoration: underline;
-}
-
 .review-actions {
     text-align: right;
 }
@@ -949,86 +666,5 @@ onMounted(() => {
 .pagination-container {
     margin-top: 30px;
     text-align: center;
-}
-
-/* 富文本编辑器样式 */
-.review-form :deep(.review-content-item .el-form-item__content) {
-    width: 100%;
-    flex: 1;
-    display: block;
-}
-
-.review-form :deep(.full-width-editor) {
-    width: 100%;
-}
-
-.review-form :deep(.full-width-editor .ql-editor) {
-    width: 100%;
-}
-
-:deep(.ql-container) {
-    min-height: 200px;
-    border: 1px solid #dcdfe6;
-    border-radius: 12px;
-    font-size: 14px;
-    line-height: 1.6;
-    background-color: #fff;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-    width: 100%;
-}
-
-:deep(.ql-toolbar) {
-    border: 1px solid #dcdfe6;
-    border-bottom: 1px solid #e4e7ed;
-    border-radius: 12px 12px 0 0;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    padding: 12px 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    width: 100%;
-}
-
-:deep(.ql-toolbar .ql-formats) {
-    margin-right: 16px;
-}
-
-:deep(.ql-toolbar button) {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    margin-right: 6px;
-    transition: all 0.2s ease;
-}
-
-:deep(.ql-toolbar button:hover) {
-    background-color: #ecf5ff;
-    transform: scale(1.05);
-}
-
-:deep(.ql-toolbar button.ql-active) {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-color: transparent;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-:deep(.ql-editor) {
-    padding: 16px;
-    min-height: 200px;
-}
-
-:deep(.ql-editor.ql-blank::before) {
-    color: #999;
-    font-style: normal;
-}
-
-.word-count {
-    text-align: right;
-    font-size: 13px;
-    color: #666;
-    margin-top: 8px;
-    padding: 6px 12px;
-    background-color: #f8f9fa;
-    border-radius: 6px;
-    font-weight: 500;
 }
 </style>
