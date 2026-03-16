@@ -1,0 +1,12 @@
+21:49:05.716 [background-preinit] INFO  o.h.v.i.util.Version - [<clinit>,21] - HV000001: Hibernate Validator 8.0.1.Final
+21:49:05.749 [restartedMain] INFO  c.h.HuaCaiApplication - [logStarting,50] - Starting HuaCaiApplication using Java 17 with PID 36736 (D:\2026毕业设计\huacai-assistings\huacai-admin\target\classes started by 高浩博 in D:\2026毕业设计\huacai-assistings\huacai-admin)
+21:49:05.752 [restartedMain] INFO  c.h.HuaCaiApplication - [logStartupProfileInfo,660] - The following 1 profile is active: "druid"
+21:49:07.796 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Initializing ProtocolHandler ["http-nio-8080"]
+21:49:07.800 [restartedMain] INFO  o.a.c.c.StandardService - [log,173] - Starting service [Tomcat]
+21:49:07.801 [restartedMain] INFO  o.a.c.c.StandardEngine - [log,173] - Starting Servlet engine: [Apache Tomcat/10.1.31]
+21:49:07.886 [restartedMain] INFO  o.a.c.c.C.[.[.[/] - [log,173] - Initializing Spring embedded WebApplicationContext
+21:49:09.088 [restartedMain] INFO  c.a.d.p.DruidDataSource - [init,1002] - {dataSource-1} inited
+21:49:13.152 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Starting ProtocolHandler ["http-nio-8080"]
+21:49:13.166 [restartedMain] INFO  sys-user - [shutdownAsyncManager,31] - ====关闭后台任务任务线程池====
+21:49:13.170 [restartedMain] INFO  c.a.d.p.DruidDataSource - [close,2204] - {dataSource-1} closing ...
+21:49:13.175 [restartedMain] INFO  c.a.d.p.DruidDataSource - [close,2277] - {dataSource-1} closed

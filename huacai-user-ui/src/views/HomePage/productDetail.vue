@@ -205,6 +205,11 @@ const route = useRoute()
 //获取当前路由实例
 const router = useRouter()
 
+// 检查URL锚点，自动切换到评论标签页
+if (window.location.hash === '#reviews') {
+    activeTab.value = 'reviews'
+}
+
 //商品数据
 const product = ref({})
 

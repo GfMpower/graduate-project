@@ -89,7 +89,7 @@
         </div>
 
         <!-- 销售数据统计 -->
-        <div class="sales-statistics-section" v-if="isFarmer">
+        <div class="sales-statistics-section" v-if="isFarmer || isAdmin">
             <h2 class="section-title">
                 <el-icon>
                     <TrendCharts/>
@@ -210,6 +210,11 @@ const isFarmer = computed(() => {
     return userStore?.roles && Array.isArray(userStore.roles) && userStore.roles.includes('farmers');
 });
 
+// 计算是否为admin角色
+const isAdmin = computed(() => {
+    return userStore?.roles && Array.isArray(userStore.roles) && userStore.roles.includes('admin');
+});
+
 // 时间范围选择
 const timeRange = ref('day');
 // 统计数据
@@ -234,12 +239,13 @@ let productRankingChartInstance = null;
  * 加载销售数据
  */
 const loadSalesData = () => {
-    if (!userStore || !userStore.id) {
+    if (!userStore) {
         console.warn('用户信息不完整，无法加载销售数据');
         return;
     }
     
-    const userId = userStore.id;
+    // admin角色传递null，获取所有数据
+    const userId = isAdmin.value ? null : userStore.id;
     getSalesStatistics(userId, timeRange.value).then(res => {
         if (!res || !res.data) {
             console.warn('销售数据加载失败');
@@ -524,7 +530,7 @@ const handleResize = () => {
 
 // 组件挂载时初始化
 onMounted(() => {
-    if (isFarmer.value) {
+    if (isFarmer.value || isAdmin.value) {
         loadSalesData();
         window.addEventListener('resize', handleResize);
     }

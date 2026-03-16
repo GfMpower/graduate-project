@@ -1,0 +1,13 @@
+com\huacai\generator\util\GenUtils.class
+com\huacai\generator\controller\GenController.class
+com\huacai\generator\domain\GenTable.class
+com\huacai\generator\service\IGenTableService.class
+com\huacai\generator\mapper\GenTableColumnMapper.class
+com\huacai\generator\util\VelocityUtils.class
+com\huacai\generator\service\GenTableColumnServiceImpl.class
+com\huacai\generator\domain\GenTableColumn.class
+com\huacai\generator\service\IGenTableColumnService.class
+com\huacai\generator\config\GenConfig.class
+com\huacai\generator\service\GenTableServiceImpl.class
+com\huacai\generator\util\VelocityInitializer.class
+com\huacai\generator\mapper\GenTableMapper.class

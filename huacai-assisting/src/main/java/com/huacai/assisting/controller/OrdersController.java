@@ -158,7 +158,12 @@ public class OrdersController extends BaseController {
                 //将对应的产品库存减去购买的数量并提交更改
                 Products products = new Products();
                 products.setProductsId(productsId);
-                products.setInventory(BigDecimal.valueOf(inventory.doubleValue() - quantity));
+                BigDecimal newInventory = BigDecimal.valueOf(inventory.doubleValue() - quantity);
+                products.setInventory(newInventory);
+                // 如果库存为0，将产品状态设置为下架
+                if (newInventory.compareTo(BigDecimal.ZERO) <= 0) {
+                    products.setStatus(0);
+                }
                 productsService.updateProducts(products);
             }
 

@@ -1,119 +1,174 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+ * 评论管理Mapper映射文件
+ * 功能：定义评论相关的数据库操作SQL语句
+ * 对应接口：com.huacai.assisting.mapper.ProductReviewsMapper
+ * 对应实体：com.huacai.assisting.domain.ProductReviews
+-->
 <mapper namespace="com.huacai.assisting.mapper.ProductReviewsMapper">
-    
+
+    <!--
+     * 评论结果映射
+     * 将数据库查询结果映射到ProductReviews实体类
+     * property：实体类属性名
+     * column：数据库表字段名
+     -->
     <resultMap type="ProductReviews" id="ProductReviewsResult">
-        <result property="reviewId" column="review_id"/>
-        <result property="productsId" column="products_id"/>
-        <result property="userId" column="user_id"/>
-        <result property="orderId" column="order_id"/>
-        <result property="farmersUserId" column="farmers_user_id"/>
-        <result property="content" column="content"/>
-        <result property="rating" column="rating"/>
-        <result property="replyContent" column="reply_content"/>
-        <result property="replyTime" column="reply_time"/>
-        <result property="status" column="status"/>
-        <result property="createTime" column="create_time"/>
-        <!-- 扩展字段 -->
-        <result property="productName" column="product_name"/>
-        <result property="userName" column="user_name"/>
+        <result property="reviewId" column="review_id"/><!-- 评论ID -->
+        <result property="productsId" column="products_id"/><!-- 产品ID -->
+        <result property="userId" column="user_id"/><!-- 用户ID -->
+        <result property="orderId" column="order_id"/><!-- 订单ID -->
+        <result property="farmersUserId" column="farmers_user_id"/><!-- 农户用户ID -->
+        <result property="content" column="content"/><!-- 评论内容 -->
+        <result property="rating" column="rating"/><!-- 评分 -->
+        <result property="replyContent" column="reply_content"/><!-- 回复内容 -->
+        <result property="replyTime" column="reply_time"/><!-- 回复时间 -->
+        <result property="status" column="status"/><!-- 状态：1-显示，0-隐藏 -->
+        <result property="createTime" column="create_time"/><!-- 创建时间 -->
+        <!-- 扩展字段：关联查询的字段 -->
+        <result property="productName" column="product_name"/><!-- 产品名称 -->
+        <result property="userName" column="user_name"/><!-- 用户昵称 -->
     </resultMap>
 
+    <!--
+     * 评论查询基础SQL片段
+     * 定义评论表及其关联表的基础查询字段
+     * 关联产品表(products)获取产品名称
+     * 关联用户表(sys_user)获取用户昵称
+     -->
     <sql id="selectProductReviewsVo">
-        SELECT 
-            r.review_id,
-            r.products_id,
-            r.user_id,
-            r.order_id,
-            r.farmers_user_id,
-            r.content,
-            r.rating,
-            r.reply_content,
-            r.reply_time,
-            r.status,
-            r.create_time,
-            p.name as product_name,
-            u.nick_name as user_name
-        FROM product_reviews r
-        LEFT JOIN products p ON r.products_id = p.products_id
-        LEFT JOIN sys_user u ON r.user_id = u.user_id
+        SELECT r.review_id,       -- 评论ID
+               r.products_id,     -- 产品ID
+               r.user_id,         -- 用户ID
+               r.order_id,        -- 订单ID
+               r.farmers_user_id, -- 农户用户ID
+               r.content,         -- 评论内容
+               r.rating,          -- 评分
+               r.reply_content,   -- 回复内容
+               r.reply_time,      -- 回复时间
+               r.status,          -- 状态
+               r.create_time,     -- 创建时间
+               p.name      as product_name,     -- 产品名称（关联产品表）
+               u.nick_name as user_name         -- 用户昵称（关联用户表）
+        FROM product_reviews r                   -- 评论表
+                 LEFT JOIN products p ON r.products_id = p.products_id  -- 左连接产品表
+                 LEFT JOIN sys_user u ON r.user_id = u.user_id          -- 左连接用户表
     </sql>
 
+    <!--
+     * 查询评论列表
+     * @param ProductReviews 评论查询条件
+     * @return List<ProductReviews> 评论列表
+     * 支持按产品ID、用户ID、订单ID、农户用户ID、状态、产品名称、用户昵称筛选
+     * 按创建时间降序排序
+     -->
     <select id="selectProductReviewsList" parameterType="ProductReviews" resultMap="ProductReviewsResult">
         <include refid="selectProductReviewsVo"/>
         <where>
             <if test="productsId != null and productsId != ''">
-                AND r.products_id = #{productsId}
+                AND r.products_id = #{productsId} <!-- 按产品ID筛选 -->
             </if>
             <if test="userId != null and userId != ''">
-                AND r.user_id = #{userId}
+                AND r.user_id = #{userId} <!-- 按用户ID筛选 -->
             </if>
             <if test="orderId != null and orderId != ''">
-                AND r.order_id = #{orderId}
+                AND r.order_id = #{orderId} <!-- 按订单ID筛选 -->
             </if>
             <if test="farmersUserId != null and farmersUserId != ''">
-                AND r.farmers_user_id = #{farmersUserId}
+                AND r.farmers_user_id = #{farmersUserId} <!-- 按农户用户ID筛选 -->
             </if>
             <if test="status != null">
-                AND r.status = #{status}
+                AND r.status = #{status} <!-- 按状态筛选：1-显示，0-隐藏 -->
+            </if>
+            <if test="productName != null and productName != ''">
+                AND p.name LIKE CONCAT('%', #{productName}, '%') <!-- 按产品名称模糊搜索 -->
+            </if>
+            <if test="userName != null and userName != ''">
+                AND u.nick_name LIKE CONCAT('%', #{userName}, '%') <!-- 按用户昵称模糊搜索 -->
             </if>
         </where>
-        ORDER BY r.create_time DESC
+        ORDER BY r.create_time DESC <!-- 按创建时间降序排序 -->
     </select>
-    
+
+    <!--
+     * 根据评论ID查询评论详情
+     * @param reviewId 评论ID
+     * @return ProductReviews 评论详情
+     -->
     <select id="selectProductReviewsByReviewId" parameterType="String" resultMap="ProductReviewsResult">
         <include refid="selectProductReviewsVo"/>
-        WHERE r.review_id = #{reviewId}
+        WHERE r.review_id = #{reviewId} <!-- 按评论ID查询 -->
     </select>
 
+    <!--
+     * 新增评论
+     * @param ProductReviews 评论信息
+     * @return int 影响行数
+     -->
     <insert id="insertProductReviews" parameterType="ProductReviews">
-        INSERT INTO product_reviews (
-            review_id,
-            products_id,
-            user_id,
-            order_id,
-            farmers_user_id,
-            content,
-            rating,
-            reply_content,
-            reply_time,
-            status,
-            create_time
-        ) VALUES (
-            #{reviewId},
-            #{productsId},
-            #{userId},
-            #{orderId},
-            #{farmersUserId},
-            #{content},
-            #{rating},
-            #{replyContent},
-            #{replyTime},
-            #{status},
-            #{createTime}
-        )
+        INSERT INTO product_reviews (review_id,       -- 评论ID
+                                     products_id,     -- 产品ID
+                                     user_id,         -- 用户ID
+                                     order_id,        -- 订单ID
+                                     farmers_user_id, -- 农户用户ID
+                                     content,         -- 评论内容
+                                     rating,          -- 评分
+                                     reply_content,   -- 回复内容
+                                     reply_time,      -- 回复时间
+                                     status,          -- 状态
+                                     create_time)     -- 创建时间
+        VALUES (#{reviewId},        -- 评论ID
+                #{productsId},      -- 产品ID
+                #{userId},          -- 用户ID
+                #{orderId},         -- 订单ID
+                #{farmersUserId},   -- 农户用户ID
+                #{content},         -- 评论内容
+                #{rating},          -- 评分
+                #{replyContent},    -- 回复内容
+                #{replyTime},       -- 回复时间
+                #{status},          -- 状态
+                #{createTime})      -- 创建时间
     </insert>
 
+    <!--
+     * 修改评论
+     * @param ProductReviews 评论信息
+     * @return int 影响行数
+     * 支持修改回复内容、回复时间、状态
+     -->
     <update id="updateProductReviews" parameterType="ProductReviews">
         UPDATE product_reviews
         <set>
-            <if test="replyContent != null">reply_content = #{replyContent},</if>
-            <if test="replyTime != null">reply_time = #{replyTime},</if>
-            <if test="status != null">status = #{status},</if>
+            <if test="replyContent != null">reply_content = #{replyContent},</if> <!-- 修改回复内容 -->
+            <if test="replyTime != null">reply_time = #{replyTime},</if>           <!-- 修改回复时间 -->
+            <if test="status != null">status = #{status},</if>                     <!-- 修改状态 -->
         </set>
-        WHERE review_id = #{reviewId}
+        WHERE review_id = #{reviewId} <!-- 按评论ID更新 -->
     </update>
 
+    <!--
+     * 删除评论
+     * @param reviewId 评论ID
+     * @return int 影响行数
+     -->
     <delete id="deleteProductReviewsByReviewId" parameterType="String">
-        DELETE FROM product_reviews WHERE review_id = #{reviewId}
+        DELETE
+        FROM product_reviews
+        WHERE review_id = #{reviewId} <!-- 按评论ID删除 -->
     </delete>
 
+    <!--
+     * 批量删除评论
+     * @param reviewIds 评论ID数组
+     * @return int 影响行数
+     -->
     <delete id="deleteProductReviewsByReviewIds" parameterType="String">
-        DELETE FROM product_reviews WHERE review_id IN 
+        DELETE FROM product_reviews WHERE review_id IN
         <foreach item="reviewId" collection="array" open="(" separator="," close=")">
-            #{reviewId}
+            #{reviewId} <!-- 遍历评论ID数组 -->
         </foreach>
     </delete>
 </mapper>

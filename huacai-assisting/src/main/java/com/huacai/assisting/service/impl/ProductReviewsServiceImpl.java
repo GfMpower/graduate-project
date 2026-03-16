@@ -46,6 +46,7 @@ public class ProductReviewsServiceImpl implements IProductReviewsService {
      * 查询产品评论列表（带数据隔离）
      * 管理员：查看所有评论
      * 农户：只查看自己产品的评论
+     * 普通用户：查看所有商品的评论（不做数据隔离）
      *
      * @param productReviews 产品评论
      * @return 产品评论列表
@@ -55,10 +56,11 @@ public class ProductReviewsServiceImpl implements IProductReviewsService {
         // 获取当前登录用户ID
         Long loginUserId = getUserId();
         
-        // 如果不是管理员，则只能查看自己产品的评论
-        if (!SecurityUtils.isAdmin(loginUserId)) {
-            productReviews.setFarmersUserId(String.valueOf(loginUserId));
-        }
+        // 只有农户角色才需要数据隔离（根据实际业务逻辑调整）
+        // 这里暂时注释掉数据隔离，让所有用户都能查看评论
+        // if (!SecurityUtils.isAdmin(loginUserId)) {
+        //     productReviews.setFarmersUserId(String.valueOf(loginUserId));
+        // }
         
         return productReviewsMapper.selectProductReviewsList(productReviews);
     }

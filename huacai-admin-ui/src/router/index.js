@@ -167,7 +167,7 @@ export const dynamicRoutes = [
         path: 'reviews',
         component: () => import('@/views/assisting/reviews/index'),
         name: 'Reviews',
-        meta: { title: '评论管理', icon: 'message', permissions: ['assisting:reviews:list'] }
+        meta: { title: '评论管理', icon: 'message', permissions: ['assisting:reviews:list']}
       }
     ]
   }

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.huacai.assisting.mapper.ProductReviewssMapper">
+    
+    <resultMap type="ProductReviewss" id="ProductReviewssResult">
+        <result property="reviewId"    column="review_id"    />
+        <result property="productsId"    column="products_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="content"    column="content"    />
+        <result property="rating"    column="rating"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="orderId"    column="order_id"    />
+        <result property="farmersUserId"    column="farmers_user_id"    />
+        <result property="replyContent"    column="reply_content"    />
+        <result property="replyTime"    column="reply_time"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectProductReviewssVo">
+        select review_id, products_id, user_id, content, rating, create_time, order_id, farmers_user_id, reply_content, reply_time, status from product_reviewss
+    </sql>
+
+    <select id="selectProductReviewssList" parameterType="ProductReviewss" resultMap="ProductReviewssResult">
+        <include refid="selectProductReviewssVo"/>
+        <where>  
+            <if test="productsId != null  and productsId != ''"> and products_id = #{productsId}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="farmersUserId != null  and farmersUserId != ''"> and farmers_user_id = #{farmersUserId}</if>
+        </where>
+    </select>
+    
+    <select id="selectProductReviewssByReviewId" parameterType="String" resultMap="ProductReviewssResult">
+        <include refid="selectProductReviewssVo"/>
+        where review_id = #{reviewId}
+    </select>
+
+    <insert id="insertProductReviewss" parameterType="ProductReviewss">
+        insert into product_reviewss
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="reviewId != null">review_id,</if>
+            <if test="productsId != null and productsId != ''">products_id,</if>
+            <if test="userId != null and userId != ''">user_id,</if>
+            <if test="content != null and content != ''">content,</if>
+            <if test="rating != null">rating,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="orderId != null">order_id,</if>
+            <if test="farmersUserId != null">farmers_user_id,</if>
+            <if test="replyContent != null">reply_content,</if>
+            <if test="replyTime != null">reply_time,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="reviewId != null">#{reviewId},</if>
+            <if test="productsId != null and productsId != ''">#{productsId},</if>
+            <if test="userId != null and userId != ''">#{userId},</if>
+            <if test="content != null and content != ''">#{content},</if>
+            <if test="rating != null">#{rating},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="orderId != null">#{orderId},</if>
+            <if test="farmersUserId != null">#{farmersUserId},</if>
+            <if test="replyContent != null">#{replyContent},</if>
+            <if test="replyTime != null">#{replyTime},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateProductReviewss" parameterType="ProductReviewss">
+        update product_reviewss
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="productsId != null and productsId != ''">products_id = #{productsId},</if>
+            <if test="userId != null and userId != ''">user_id = #{userId},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="rating != null">rating = #{rating},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="orderId != null">order_id = #{orderId},</if>
+            <if test="farmersUserId != null">farmers_user_id = #{farmersUserId},</if>
+            <if test="replyContent != null">reply_content = #{replyContent},</if>
+            <if test="replyTime != null">reply_time = #{replyTime},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where review_id = #{reviewId}
+    </update>
+
+    <delete id="deleteProductReviewssByReviewId" parameterType="String">
+        delete from product_reviewss where review_id = #{reviewId}
+    </delete>
+
+    <delete id="deleteProductReviewssByReviewIds" parameterType="String">
+        delete from product_reviewss where review_id in 
+        <foreach item="reviewId" collection="array" open="(" separator="," close=")">
+            #{reviewId}
+        </foreach>
+    </delete>
+</mapper>

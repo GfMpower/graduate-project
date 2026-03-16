@@ -1,0 +1,41 @@
+21:48:53.192 [restartedMain] INFO  c.h.HuaCaiApplication - [logStarting,50] - Starting HuaCaiApplication using Java 17 with PID 1416 (D:\2026毕业设计\huacai-assistings\huacai-admin\target\classes started by 高浩博 in D:\2026毕业设计\huacai-assistings)
+21:48:53.192 [restartedMain] INFO  c.h.HuaCaiApplication - [logStartupProfileInfo,660] - The following 1 profile is active: "druid"
+21:48:54.741 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Initializing ProtocolHandler ["http-nio-8080"]
+21:48:54.741 [restartedMain] INFO  o.a.c.c.StandardService - [log,173] - Starting service [Tomcat]
+21:48:54.741 [restartedMain] INFO  o.a.c.c.StandardEngine - [log,173] - Starting Servlet engine: [Apache Tomcat/10.1.31]
+21:48:54.821 [restartedMain] INFO  o.a.c.c.C.[.[.[/] - [log,173] - Initializing Spring embedded WebApplicationContext
+21:48:55.555 [restartedMain] INFO  c.a.d.p.DruidDataSource - [init,1002] - {dataSource-2} inited
+21:48:59.170 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Starting ProtocolHandler ["http-nio-8080"]
+21:48:59.203 [restartedMain] INFO  c.h.HuaCaiApplication - [logStarted,56] - Started HuaCaiApplication in 6.081 seconds (process running for 960.806)
+21:49:26.828 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[.[.[/] - [log,173] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+21:50:30.210 [SpringApplicationShutdownHook] INFO  sys-user - [shutdownAsyncManager,31] - ====关闭后台任务任务线程池====
+21:50:30.212 [SpringApplicationShutdownHook] INFO  c.a.d.p.DruidDataSource - [close,2204] - {dataSource-2} closing ...
+21:50:30.214 [SpringApplicationShutdownHook] INFO  c.a.d.p.DruidDataSource - [close,2277] - {dataSource-2} closed
+21:50:38.271 [background-preinit] INFO  o.h.v.i.util.Version - [<clinit>,21] - HV000001: Hibernate Validator 8.0.1.Final
+21:50:38.304 [restartedMain] INFO  c.h.HuaCaiApplication - [logStarting,50] - Starting HuaCaiApplication using Java 17 with PID 7532 (D:\2026毕业设计\huacai-assistings\huacai-admin\target\classes started by 高浩博 in D:\2026毕业设计\huacai-assistings)
+21:50:38.305 [restartedMain] INFO  c.h.HuaCaiApplication - [logStartupProfileInfo,660] - The following 1 profile is active: "druid"
+21:50:40.219 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Initializing ProtocolHandler ["http-nio-8080"]
+21:50:40.222 [restartedMain] INFO  o.a.c.c.StandardService - [log,173] - Starting service [Tomcat]
+21:50:40.222 [restartedMain] INFO  o.a.c.c.StandardEngine - [log,173] - Starting Servlet engine: [Apache Tomcat/10.1.31]
+21:50:40.293 [restartedMain] INFO  o.a.c.c.C.[.[.[/] - [log,173] - Initializing Spring embedded WebApplicationContext
+21:50:41.161 [restartedMain] INFO  c.a.d.p.DruidDataSource - [init,1002] - {dataSource-1} inited
+21:50:44.169 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Starting ProtocolHandler ["http-nio-8080"]
+21:50:44.377 [restartedMain] INFO  c.h.HuaCaiApplication - [logStarted,56] - Started HuaCaiApplication in 6.383 seconds (process running for 7.279)
+21:50:48.901 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[.[.[/] - [log,173] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+21:51:27.616 [Thread-5] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Stopping ProtocolHandler ["http-nio-8080"]
+21:51:28.828 [Thread-5] INFO  sys-user - [shutdownAsyncManager,31] - ====关闭后台任务任务线程池====
+21:51:28.836 [Thread-5] INFO  c.a.d.p.DruidDataSource - [close,2204] - {dataSource-1} closing ...
+21:51:28.844 [Thread-5] INFO  c.a.d.p.DruidDataSource - [close,2277] - {dataSource-1} closed
+21:51:29.028 [restartedMain] INFO  c.h.HuaCaiApplication - [logStarting,50] - Starting HuaCaiApplication using Java 17 with PID 7532 (D:\2026毕业设计\huacai-assistings\huacai-admin\target\classes started by 高浩博 in D:\2026毕业设计\huacai-assistings)
+21:51:29.030 [restartedMain] INFO  c.h.HuaCaiApplication - [logStartupProfileInfo,660] - The following 1 profile is active: "druid"
+21:51:30.440 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Initializing ProtocolHandler ["http-nio-8080"]
+21:51:30.441 [restartedMain] INFO  o.a.c.c.StandardService - [log,173] - Starting service [Tomcat]
+21:51:30.441 [restartedMain] INFO  o.a.c.c.StandardEngine - [log,173] - Starting Servlet engine: [Apache Tomcat/10.1.31]
+21:51:30.522 [restartedMain] INFO  o.a.c.c.C.[.[.[/] - [log,173] - Initializing Spring embedded WebApplicationContext
+21:51:31.264 [restartedMain] INFO  c.a.d.p.DruidDataSource - [init,1002] - {dataSource-2} inited
+21:51:34.611 [restartedMain] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Starting ProtocolHandler ["http-nio-8080"]
+21:51:34.630 [restartedMain] INFO  c.h.HuaCaiApplication - [logStarted,56] - Started HuaCaiApplication in 5.662 seconds (process running for 57.532)
+21:51:36.174 [Thread-7] INFO  o.a.c.h.Http11NioProtocol - [log,173] - Stopping ProtocolHandler ["http-nio-8080"]
+21:51:37.265 [Thread-7] INFO  sys-user - [shutdownAsyncManager,31] - ====关闭后台任务任务线程池====
+21:51:37.271 [Thread-7] INFO  c.a.d.p.DruidDataSource - [close,2204] - {dataSource-2} closing ...
+21:51:37.274 [Thread-7] INFO  c.a.d.p.DruidDataSource - [close,2277] - {dataSource-2} closed

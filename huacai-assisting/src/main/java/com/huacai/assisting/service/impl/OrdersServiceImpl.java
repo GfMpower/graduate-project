@@ -207,14 +207,21 @@ public class OrdersServiceImpl implements IOrdersService {
     }
 
     /**
-     * 获取农户销售统计数据
-     * @param userId 农户用户ID
+     * 获取销售统计数据
+     * @param userId 农户用户ID（admin角色传入null获取所有数据）
      * @param timeRange 时间范围
      * @return 销售统计数据
      */
     @Override
     public Object getSalesStatistics(Long userId, String timeRange) {
         java.util.Map<String, Object> result = new java.util.HashMap<>();
+
+        // 检查当前用户是否为admin角色
+        Long currentUserId = getUserId();
+        if (SecurityUtils.isAdmin(currentUserId)) {
+            // admin角色获取所有数据，传入null
+            userId = null;
+        }
 
         List<java.util.Map<String, Object>> salesTrend = ordersMapper.selectSalesTrend(userId, timeRange);
         List<java.util.Map<String, Object>> productRanking = ordersMapper.selectProductSalesRanking(userId);

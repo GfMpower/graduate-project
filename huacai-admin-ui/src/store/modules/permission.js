@@ -109,12 +109,27 @@ function filterChildren(childrenMap, lastRouter = false) {
 export function filterDynamicRoutes(routes) {
   const res = []
   routes.forEach(route => {
+    // 检查当前路由是否有权限
+    let hasPermission = false
     if (route.permissions) {
-      if (auth.hasPermiOr(route.permissions)) {
-        res.push(route)
-      }
+      hasPermission = auth.hasPermiOr(route.permissions)
     } else if (route.roles) {
-      if (auth.hasRoleOr(route.roles)) {
+      hasPermission = auth.hasRoleOr(route.roles)
+    } else {
+      // 没有权限配置的路由默认允许
+      hasPermission = true
+    }
+    
+    // 如果当前路由有权限，或者它有子路由
+    if (hasPermission || (route.children && route.children.length > 0)) {
+      // 递归处理子路由
+      if (route.children && route.children.length > 0) {
+        const filteredChildren = filterDynamicRoutes(route.children)
+        if (filteredChildren.length > 0) {
+          route.children = filteredChildren
+          res.push(route)
+        }
+      } else if (hasPermission) {
         res.push(route)
       }
     }

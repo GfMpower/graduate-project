@@ -89,17 +89,15 @@
                                 type="success" 
                                 size="small" 
                                 @click="openReviewDialog(order)"
-                                v-if="!order.isReviewed"
                             >
                                 发表评论
                             </el-button>
                             <el-button 
                                 type="info" 
                                 size="small" 
-                                disabled
-                                v-else
+                                @click="viewProductReviews(order)"
                             >
-                                已评价
+                                查看评论
                             </el-button>
                         </template>
                     </div>
@@ -284,16 +282,26 @@
     <el-dialog
         v-model="reviewDialogVisible"
         title="发表评价"
-        width="500px"
+        width="600px"
         :close-on-click-modal="false"
         center
     >
         <div class="review-form">
             <div class="review-product" v-if="currentReviewOrder && currentReviewOrder.ordersProductsList">
-                <img :src="baseUrl + currentReviewOrder.ordersProductsList[0].image" class="review-product-img" />
-                <div class="review-product-info">
-                    <div class="review-product-name">{{ currentReviewOrder.ordersProductsList[0].productsName }}</div>
-                    <div class="review-product-specs">规格: {{ currentReviewOrder.ordersProductsList[0].specs }}</div>
+                <el-select v-model="selectedProduct" placeholder="请选择要评价的商品" style="width: 100%; margin-bottom: 20px;">
+                    <el-option 
+                        v-for="product in currentReviewOrder.ordersProductsList" 
+                        :key="product.productsId" 
+                        :label="product.productsName + ' (' + product.specs + ')'" 
+                        :value="product"
+                    />
+                </el-select>
+                <div v-if="selectedProduct" class="product-info">
+                    <img :src="baseUrl + selectedProduct.image" class="review-product-img" />
+                    <div class="review-product-info">
+                        <div class="review-product-name">{{ selectedProduct.productsName }}</div>
+                        <div class="review-product-specs">规格: {{ selectedProduct.specs }}</div>
+                    </div>
                 </div>
             </div>
             <div class="review-rating">
@@ -315,8 +323,41 @@
         <template #footer>
             <span class="dialog-footer">
                 <el-button @click="reviewDialogVisible = false">取消</el-button>
-                <el-button type="primary" @click="submitReview" :loading="submitting">提交评价</el-button>
+                <el-button type="primary" @click="submitReview" :loading="submitting" :disabled="!selectedProduct">提交评价</el-button>
             </span>
+        </template>
+    </el-dialog>
+
+    <!-- 查看评论商品选择对话框 -->
+    <el-dialog
+        v-model="viewReviewsDialogVisible"
+        title="选择商品"
+        width="600px"
+        :close-on-click-modal="false"
+        center
+    >
+        <div class="product-selector">
+            <div class="selector-tip">请选择要查看评论的商品：</div>
+            <div class="product-list">
+                <div 
+                    v-for="product in currentViewReviewsOrder?.ordersProductsList" 
+                    :key="product.productsId"
+                    class="product-item-selector"
+                    :class="{ selected: selectedViewProduct?.productsId === product.productsId }"
+                    @click="selectViewProduct(product)"
+                >
+                    <img :src="baseUrl + product.image" class="product-selector-img" />
+                    <div class="product-selector-info">
+                        <div class="product-selector-name">{{ product.productsName }}</div>
+                        <div class="product-selector-specs">规格: {{ product.specs }}</div>
+                        <div class="product-selector-price">¥{{ product.price }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template #footer>
+            <el-button @click="viewReviewsDialogVisible = false">取消</el-button>
+            <el-button type="primary" @click="confirmViewReviews" :disabled="!selectedViewProduct">查看评论</el-button>
         </template>
     </el-dialog>
 </template>
@@ -456,6 +497,7 @@ const cancelPayment = () => {
 // 评论相关数据
 const reviewDialogVisible = ref(false)
 const submitting = ref(false)
+const selectedProduct = ref(null)
 const reviewForm = ref({
     productsId: '',
     orderId: '',
@@ -465,13 +507,17 @@ const reviewForm = ref({
 })
 const currentReviewOrder = ref(null)
 
+// 查看评论商品选择对话框相关数据
+const viewReviewsDialogVisible = ref(false)
+const currentViewReviewsOrder = ref(null)
+const selectedViewProduct = ref(null)
+
 // 打开评论对话框
 const openReviewDialog = (order) => {
     currentReviewOrder.value = order
-    // 获取订单中的第一个产品进行评价（简化处理）
-    const product = order.ordersProductsList[0]
+    selectedProduct.value = null
     reviewForm.value = {
-        productsId: product.productsId,
+        productsId: '',
         orderId: order.ordersId,
         farmersUserId: order.productsUserId,
         rating: 5,
@@ -482,21 +528,68 @@ const openReviewDialog = (order) => {
 
 // 提交评论
 const submitReview = () => {
+    if (!selectedProduct.value) {
+        ElMessage.warning('请选择要评价的商品')
+        return
+    }
     if (!reviewForm.value.content.trim()) {
         ElMessage.warning('请输入评价内容')
         return
     }
     
+    // 更新评论表单中的产品ID
+    reviewForm.value.productsId = selectedProduct.value.productsId
+    
     submitting.value = true
     addReviews(reviewForm.value).then(() => {
         ElMessage.success('评价成功')
         reviewDialogVisible.value = false
-        // 标记订单已评价
-        currentReviewOrder.value.isReviewed = true
         submitting.value = false
     }).catch(() => {
         submitting.value = false
     })
+}
+
+// 查看评论（打开商品选择对话框）
+const viewProductReviews = (order) => {
+    if (order.ordersProductsList && order.ordersProductsList.length > 0) {
+        // 设置当前要查看评论的订单
+        currentViewReviewsOrder.value = order
+        // 清空已选择的商品
+        selectedViewProduct.value = null
+        // 打开商品选择对话框
+        viewReviewsDialogVisible.value = true
+    } else {
+        ElMessage.warning('该订单中没有商品')
+    }
+}
+
+// 选择要查看评论的商品
+const selectViewProduct = (product) => {
+    selectedViewProduct.value = product
+}
+
+// 确认查看评论
+const confirmViewReviews = () => {
+    if (selectedViewProduct.value) {
+        // 显示加载状态
+        const loading = ElLoading.service({
+            lock: true,
+            text: '正在跳转...',
+            background: 'rgba(0, 0, 0, 0.7)'
+        })
+        
+        // 跳转到商品详情页，添加锚点#reviews
+        router.push(`/index/productDetail/${selectedViewProduct.value.productsId}#reviews`)
+        
+        // 关闭对话框
+        viewReviewsDialogVisible.value = false
+        
+        // 延迟关闭加载状态
+        setTimeout(() => {
+            loading.close()
+        }, 500)
+    }
 }
 
 //取消订单方法
@@ -1007,5 +1100,77 @@ onMounted(() => {
 .review-content {
     display: flex;
     flex-direction: column;
+}
+
+/* 商品选择对话框样式 */
+.product-selector {
+    padding: 10px 0;
+}
+
+.selector-tip {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.product-selector .product-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.product-item-selector {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.product-item-selector:hover {
+    border-color: #3AAE6E;
+    background-color: #f0f9eb;
+}
+
+.product-item-selector.selected {
+    border-color: #3AAE6E;
+    background-color: #f0f9eb;
+    box-shadow: 0 0 0 2px rgba(58, 170, 238, 0.2);
+}
+
+.product-selector-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.product-selector-info {
+    flex: 1;
+}
+
+.product-selector-name {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.product-selector-specs {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 5px;
+}
+
+.product-selector-price {
+    font-size: 18px;
+    color: #f56c6c;
+    font-weight: bold;
 }
 </style>

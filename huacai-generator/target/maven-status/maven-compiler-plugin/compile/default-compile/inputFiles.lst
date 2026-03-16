@@ -1,0 +1,13 @@
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\config\GenConfig.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\controller\GenController.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\domain\GenTable.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\domain\GenTableColumn.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\mapper\GenTableColumnMapper.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\mapper\GenTableMapper.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\service\GenTableColumnServiceImpl.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\service\GenTableServiceImpl.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\service\IGenTableColumnService.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\service\IGenTableService.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\util\GenUtils.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\util\VelocityInitializer.java
+D:\2026毕业设计\huacai-assistings\huacai-generator\src\main\java\com\huacai\generator\util\VelocityUtils.java

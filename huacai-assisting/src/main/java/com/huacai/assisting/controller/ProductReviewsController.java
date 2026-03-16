@@ -30,9 +30,8 @@ public class ProductReviewsController extends BaseController {
     private IProductReviewsService productReviewsService;
 
     /**
-     * 查询产品评论列表（带权限控制）
+     * 查询产品评论列表（无需权限控制，普通用户也可访问）
      */
-    @PreAuthorize("@ss.hasPermi('assisting:reviews:list')")
     @GetMapping("/list")
     public TableDataInfo list(ProductReviews productReviews) {
         startPage();
