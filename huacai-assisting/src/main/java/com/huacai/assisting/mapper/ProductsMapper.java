@@ -1,6 +1,7 @@
 package com.huacai.assisting.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.huacai.assisting.domain.Products;
 
 /**
@@ -58,4 +59,28 @@ public interface ProductsMapper
      * @return 结果
      */
     public int deleteProductsByProductsIds(String[] productsIds);
+
+    /**
+     * 查询热门商品
+     * 
+     * @param limit 限制数量
+     * @return 热门商品列表
+     */
+    public List<Products> selectHotProducts(int limit);
+
+    /**
+     * 根据类别查询商品
+     * 
+     * @param params 参数包含categoryId和limit
+     * @return 商品列表
+     */
+    public List<Products> selectProductsByCategoryId(Map<String, Object> params);
+
+    /**
+     * 查询商品通过ID
+     * 
+     * @param productsId 商品ID
+     * @return 商品
+     */
+    public Products selectProductsById(String productsId);
 }

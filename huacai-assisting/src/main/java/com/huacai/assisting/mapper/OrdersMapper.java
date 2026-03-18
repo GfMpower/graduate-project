@@ -109,4 +109,12 @@ public interface OrdersMapper
      * @return 订单状态分布数据
      */
     public List<java.util.Map<String, Object>> selectOrderStatusDistribution(Long userId);
-}
+
+    /**
+     * 根据用户ID查询订单列表
+     * 
+     * @param userId 用户ID
+     * @return 订单集合
+     */
+    public List<Orders> selectOrdersListByUserId(String userId);
+} 

@@ -213,4 +213,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <if test="userId != null"> AND products_user_id = #{userId}</if>
         GROUP BY status
     </select>
+
+    <!--根据用户ID查询订单列表-->
+    <select id="selectOrdersListByUserId" parameterType="String" resultMap="OrdersResult">
+        select o.orders_id, o.products_user_id, o.create_time, o.shipping_time, o.complete_time,
+               o.total_price, o.name, o.phone, o.address, o.status, o.user_id,
+               u.user_name, -- 下单用户
+               (select real_name from farmers where user_id = o.products_user_id) as farmersName -- 农户名称
+        from orders o
+        left join sys_user u on o.user_id = u.user_id
+        where o.user_id = #{userId}
+        order by o.create_time desc
+    </select>
 </mapper>

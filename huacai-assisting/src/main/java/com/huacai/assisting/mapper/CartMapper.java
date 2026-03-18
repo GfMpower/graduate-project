@@ -64,4 +64,12 @@ public interface CartMapper
      * 根据产品ID和用户ID查询购物车项ID
      */
     public String selectCartIdByProductsAndUserId(String productsId, Long userId);
-}
+
+    /**
+     * 根据用户ID查询购物车列表
+     *
+     * @param userId 用户ID
+     * @return 购物车集合
+     */
+    public List<Cart> selectCartListByUserId(String userId);
+} 

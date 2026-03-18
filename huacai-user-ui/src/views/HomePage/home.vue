@@ -97,6 +97,9 @@
                     </el-loading>
                 </div>
             </div>
+
+            <!-- 智能推荐区域 -->
+            <RecommendSection />
         </div>
     </div>
 </template>
@@ -108,6 +111,7 @@ import {ArrowRight, Menu, Goods} from "@element-plus/icons-vue";
 import {selectList} from "@/api/assisting/products.js";
 import {listCategories} from "@/api/assisting/categories.js";
 import {ref, onMounted, computed} from "vue";
+import RecommendSection from "@/components/RecommendSection.vue";
 
 //初始化路由
 const router = useRouter()
