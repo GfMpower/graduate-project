@@ -3,6 +3,7 @@ com\huacai\assisting\domain\Orders.class
 com\huacai\assisting\domain\Policies.class
 com\huacai\assisting\domain\OrdersProducts.class
 com\huacai\assisting\service\impl\ProductCategoriesServiceImpl.class
+com\huacai\assisting\controller\RecommendController.class
 com\huacai\assisting\domain\Addresses.class
 com\huacai\assisting\mapper\PoliciesMapper.class
 com\huacai\assisting\controller\PoliciesController.class
@@ -12,6 +13,7 @@ com\huacai\assisting\mapper\OrdersMapper.class
 com\huacai\assisting\service\IProductsService.class
 com\huacai\assisting\mapper\ProductCategoriesMapper.class
 com\huacai\assisting\service\impl\BannerServiceImpl.class
+com\huacai\assisting\service\IRecommendService.class
 com\huacai\assisting\service\IPoliciesService.class
 com\huacai\assisting\domain\Farmers.class
 com\huacai\assisting\mapper\FarmersMapper.class
@@ -25,6 +27,7 @@ com\huacai\assisting\service\impl\FarmersServiceImpl.class
 com\huacai\assisting\service\impl\PoliciesServiceImpl.class
 com\huacai\assisting\controller\ProductReviewssController.class
 com\huacai\assisting\service\impl\ProductsServiceImpl.class
+com\huacai\assisting\service\impl\RecommendServiceImpl.class
 com\huacai\assisting\controller\CartController.class
 com\huacai\assisting\mapper\BannerMapper.class
 com\huacai\assisting\mapper\ProductReviewssMapper.class

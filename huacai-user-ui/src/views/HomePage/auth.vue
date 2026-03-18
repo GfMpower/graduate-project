@@ -225,18 +225,19 @@ import {useRouter} from "vue-router";
 import {ArrowLeft} from "@element-plus/icons-vue";
 import {ElMessage} from "element-plus";
 import {addFarmers, selectIsAuth} from "@/api/assisting/farmers.js";
+import {ref, onMounted, getCurrentInstance} from "vue";
 
 //获取当前组件实例
 const {proxy} = getCurrentInstance()
 //字典数据
 const {main_products, famer_type, auth_status} = proxy.useDict('main_products', 'famer_type', 'auth_status')
 
-//引入后台管理地址
-const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
-
 //进入后台管理
 const toManage = () => {
-  window.open(backendUrl)
+  // 不直接进入后台管理，而是提示用户需要登录
+  ElMessage.info('请使用您的账号密码登录后台管理系统')
+  // 跳转到后台管理的前端登录页面
+  window.open('http://localhost:90')
 }
 
 //路由实例

@@ -102,4 +102,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{cartId}
         </foreach>
     </delete>
+
+    <!--根据用户ID查询购物车列表-->
+    <select id="selectCartListByUserId" parameterType="String" resultMap="CartResult">
+        select c.cart_id, c.products_id, c.quantity, c.user_id, c.create_time,
+               p.specs, p.origin, p.price, p.image,
+               p.user_id as productsUserId, -- 产品所属农户用户ID
+               p.name as productsName, -- 产品名称
+               u.user_name as createUserName, -- 创建人用户名
+               (select user_name from sys_user where user_id = p.user_id) as toUserName -- 产品所属农户用户名
+        from cart c
+        left join products p on c.products_id = p.products_id
+        left join sys_user u on c.user_id = u.user_id
+        where c.user_id = #{userId}
+    </select>
 </mapper>

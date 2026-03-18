@@ -7,6 +7,7 @@ D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\ProductCategoriesController.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\ProductReviewssController.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\ProductsController.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\controller\RecommendController.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\Addresses.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\Banner.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\domain\Cart.java
@@ -39,9 +40,11 @@ D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\ProductCategoriesServiceImpl.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\ProductReviewssServiceImpl.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\ProductsServiceImpl.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\impl\RecommendServiceImpl.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IOrdersService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IPoliciesService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IProductCategoriesService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IProductReviewssService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IProductsService.java
+D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\service\IRecommendService.java
 D:\2026毕业设计\huacai-assistings\huacai-assisting\src\main\java\com\huacai\assisting\vo\ReplenishVo.java
