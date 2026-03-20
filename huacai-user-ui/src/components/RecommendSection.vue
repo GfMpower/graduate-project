@@ -26,15 +26,14 @@
       </el-row>
     </div>
 
-    <div class="pagination-container" v-if="totalPages > 1">
+    <!-- 分页组件：当推荐商品数量大于每页显示数量时显示 -->
+    <div class="pagination-container" v-if="recommendList.length > pageSize">
       <el-pagination
         v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[12, 24, 36]"
+        :page-size="pageSize"
         :total="recommendList.length"
-        layout="total, prev, pager, next"
+        layout="prev, pager, next"
         @current-change="handlePageChange"
-        @size-change="handleSizeChange"
       />
     </div>
   </div>
@@ -51,16 +50,13 @@ const userStore = useUserStore()
 const baseUrl = import.meta.env.VITE_APP_BASE_API
 const recommendList = ref([])
 const currentPage = ref(1)
-const pageSize = ref(12)
+// 每页显示8个商品（2排，一排4个）
+const pageSize = ref(8)
 
 const currentPageItems = computed(() => {
   const start = (currentPage.value - 1) * pageSize.value
   const end = start + pageSize.value
   return recommendList.value.slice(start, end)
-})
-
-const totalPages = computed(() => {
-  return Math.ceil(recommendList.value.length / pageSize.value)
 })
 
 const goToProductDetail = (productsId) => {
@@ -69,11 +65,6 @@ const goToProductDetail = (productsId) => {
 
 const handlePageChange = (page) => {
   currentPage.value = page
-}
-
-const handleSizeChange = (size) => {
-  pageSize.value = size
-  currentPage.value = 1
 }
 
 const getRecommendations = async () => {
@@ -127,6 +118,7 @@ onMounted(() => {
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
+  margin-bottom: 20px;
 }
 
 .product-card:hover {
